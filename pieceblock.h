@@ -1,14 +1,15 @@
 #ifndef PIECEBLOCK_H
 #define PIECEBLOCK_H
-#include <QVector>
+#include "coordinates.h"
 
 class PieceBlock
 {
 public:
+    PieceBlock();
     PieceBlock(int x, int y, int z);
-    QVector<int> coords();
+    Coordinates coords() const;
 private:
-    PieceBlock(){}
+    Coordinates myCoordinates;
 };
 
 #endif // PIECEBLOCK_H

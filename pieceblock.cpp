@@ -1,11 +1,16 @@
 #include "pieceblock.h"
 
-PieceBlock::PieceBlock(int x, int y, int z)
+PieceBlock::PieceBlock() :
+    myCoordinates(0,0,0)
 {
-
 }
 
-QVector<int> PieceBlock::coords()
+PieceBlock::PieceBlock(int x, int y, int z) :
+    myCoordinates(x, y, z)
 {
-    return QVector<int>();
+}
+
+Coordinates PieceBlock::coords() const
+{
+    return myCoordinates;
 }
