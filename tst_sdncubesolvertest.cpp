@@ -2,6 +2,7 @@
 #include <QtTest>
 #include "puzzlecontainer.h"
 #include "puzzlepiece.h"
+#include <iostream>
 
 class SDNCubeSolverTest : public QObject
 {
@@ -18,6 +19,9 @@ private Q_SLOTS:
     void addFiveTimeOnePiece();
     void renderToGrid();
     void addOverlappingOneTimeOnePieces();
+    void popPiece();
+    void printEmptyGrid();
+    void printSteps();
 };
 
 SDNCubeSolverTest::SDNCubeSolverTest()
@@ -73,7 +77,7 @@ void SDNCubeSolverTest::addOneTimeOnePiece()
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
     Coordinates coords(0,0,0);
-    QVERIFY(cube.add(piece, coords));
+    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
 }
 
 void SDNCubeSolverTest::addFiveTimeOnePiece()
@@ -86,21 +90,37 @@ void SDNCubeSolverTest::addFiveTimeOnePiece()
     piece.addBlock(PieceBlock(0,3,0));
     piece.addBlock(PieceBlock(0,4,0));
     Coordinates coords(0,0,0);
-    QCOMPARE(cube.add(piece, coords), false);
+    QCOMPARE(cube.add(PieceLocationContainer(piece, coords)), false);
 }
 
 void SDNCubeSolverTest::renderToGrid()
 {
     PuzzleContainer cube(4,4,4);
+    int grid[cube.myWidth][cube.myHeight][cube.myDepth];
+    int* returned = cube.renderPiecesToGrid();
+    memcpy(grid, returned, sizeof(grid));
+    QCOMPARE(grid[cube.myWidth-1][cube.myHeight-1][cube.myDepth-1], 0);
+    QCOMPARE(grid[cube.myWidth-1][cube.myHeight-1][0], 0);
+    QCOMPARE(grid[cube.myWidth-1][0][cube.myDepth-1], 0);
+    QCOMPARE(grid[cube.myWidth-1][0][0], 0);
+    QCOMPARE(grid[0][cube.myHeight-1][cube.myDepth-1], 0);
+    QCOMPARE(grid[0][cube.myHeight-1][0], 0);
+    QCOMPARE(grid[0][0][cube.myDepth-1], 0);
+    QCOMPARE(grid[0][0][0], 0);
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
-    cube.pieces.append(piece);
+    Coordinates coords(0,0,0);
+    cube.piecesInContainer.append(PieceLocationContainer(piece, coords));
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,2,0));
     piece.addBlock(PieceBlock(0,3,0));
-    Coordinates coords(0,0,0);
-    cube.pieces.append(piece);
-    cube.renderPiecesToGrid();
+    cube.piecesInContainer.append(PieceLocationContainer(piece, coords));
+    returned = cube.renderPiecesToGrid();
+    memcpy(grid, returned, sizeof(grid));
+    QCOMPARE(grid[0][0][0], 2);
+    QCOMPARE(grid[0][1][0], 1);
+    QCOMPARE(grid[0][2][0], 1);
+    QCOMPARE(grid[0][3][0], 1);
 }
 
 void SDNCubeSolverTest::addOverlappingOneTimeOnePieces()
@@ -109,8 +129,121 @@ void SDNCubeSolverTest::addOverlappingOneTimeOnePieces()
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
     Coordinates coords(0,0,0);
-    QVERIFY(cube.add(piece, coords));
-//    QCOMPARE(cube.add(piece, coords), false);
+    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    int grid[cube.myWidth][cube.myHeight][cube.myDepth];
+    int* returned = cube.renderPiecesToGrid();
+    memcpy(grid, returned, sizeof(grid));
+    QCOMPARE(grid[0][0][0], 1);
+    QCOMPARE(cube.add(PieceLocationContainer(piece, coords)), false);
+    returned = cube.renderPiecesToGrid();
+    memcpy(grid, returned, sizeof(grid));
+    QCOMPARE(grid[0][0][0], 1);
+}
+
+void SDNCubeSolverTest::popPiece()
+{
+    PuzzleContainer cube(4,4,4);
+    PuzzlePiece piece;
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(1,0,0));
+    piece.addBlock(PieceBlock(0,1,0));
+    piece.addBlock(PieceBlock(0,0,1));
+    Coordinates coords(0,0,0);
+    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    piece = PuzzlePiece();
+    piece.addBlock(PieceBlock(0,0,0));
+    coords = Coordinates(1,1,1);
+    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    int grid[cube.myWidth][cube.myHeight][cube.myDepth];
+    int* returned = cube.renderPiecesToGrid();
+    memcpy(grid, returned, sizeof(grid));
+    QCOMPARE(grid[0][0][0], 1);
+    QCOMPARE(grid[1][0][0], 1);
+    QCOMPARE(grid[0][1][0], 1);
+    QCOMPARE(grid[0][0][1], 1);
+    QCOMPARE(grid[1][1][1], 1);
+    cube.pop();
+    returned = cube.renderPiecesToGrid();
+    memcpy(grid, returned, sizeof(grid));
+    QCOMPARE(grid[0][0][0], 1);
+    QCOMPARE(grid[1][1][1], 0);
+    cube.pop();
+    QCOMPARE(cube.piecesInContainer.length(), 0);
+}
+
+static const QString expectedEmpty2x3x4 = QString(
+"   /|\\     \n"
+" /  |  \\   \n"
+"|   |    \\ \n"
+"|   |     |\n"
+"|  / \\    |\n"
+"|/     \\  |\n"
+" \\       \\|\n"
+"   \\     / \n"
+"     \\ /   \n");
+static const QString expectedEmpty4x3x2 = QString(
+"       /|\\     \n"
+"     /  |  \\   \n"
+"   /   / \\   \\ \n"
+" /   /     \\  |\n"
+"|  /         \\|\n"
+"|/           / \n"
+" \\         /   \n"
+"   \\     /     \n"
+"     \\ /       \n");
+
+void SDNCubeSolverTest::printEmptyGrid()
+{
+    PuzzleContainer cube(2,3,4);
+    QString result = cube.printEmptyGrid();
+    QCOMPARE(result, expectedEmpty2x3x4);
+    cube = PuzzleContainer(4,3,2);
+    result = cube.printEmptyGrid();
+    QCOMPARE(result, expectedEmpty4x3x2);
+}
+
+static const QString expectedEmpty = QString(
+"       /|\\       \n"
+"     /  |  \\     \n"
+"   /    |    \\   \n"
+" /      |      \\ \n"
+"|      / \\      |\n"
+"|    /     \\    |\n"
+"|  /         \\  |\n"
+"|/             \\|\n"
+" \\             / \n"
+"   \\         /   \n"
+"     \\     /     \n"
+"       \\ /       \n");
+
+static const QString expectedOnePiece = QString(
+"       /|\\       \n"
+"     /  |  \\     \n"
+"   /   / \\   \\   \n"
+" /    |\\ /|    \\ \n"
+"|    / \\|/ \\    |\n"
+"|   |\\ /|\\ /|\\  |\n"
+"|  / \\|/ \\|/ \\  |\n"
+"|/             \\|\n"
+" \\             / \n"
+"   \\         /   \n"
+"     \\     /     \n"
+"       \\ /       \n");
+
+void SDNCubeSolverTest::printSteps()
+{
+    PuzzleContainer cube(4,4,4);
+    QString instructions = cube.printSteps();
+    QCOMPARE(instructions, expectedEmpty);
+    PuzzlePiece piece;
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(1,0,0));
+    piece.addBlock(PieceBlock(0,1,0));
+    piece.addBlock(PieceBlock(0,0,1));
+    Coordinates coords(0,0,0);
+    cube.add(PieceLocationContainer(piece, coords));
+    instructions = cube.printSteps();
+    //QCOMPARE(instructions, expectedOnePiece);
 }
 
 QTEST_APPLESS_MAIN(SDNCubeSolverTest)

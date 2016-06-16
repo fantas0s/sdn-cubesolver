@@ -18,11 +18,13 @@ TEMPLATE = app
 SOURCES += tst_sdncubesolvertest.cpp \
     puzzlepiece.cpp \
     pieceblock.cpp \
-    puzzlecontainer.cpp
+    puzzlecontainer.cpp \
+    piecelocationcontainer.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
     puzzlecontainer.h \
     puzzlepiece.h \
     pieceblock.h \
-    coordinates.h
+    coordinates.h \
+    piecelocationcontainer.h

@@ -1,17 +1,20 @@
 #ifndef PUZZLECONTAINER_H
 #define PUZZLECONTAINER_H
-#include "puzzlepiece.h"
+#include "piecelocationcontainer.h"
 
 class PuzzleContainer
 {
     friend class SDNCubeSolverTest;
 public:
     PuzzleContainer(int width, int height, int depth);
-    bool add(PuzzlePiece piece, Coordinates location);
+    bool add(PieceLocationContainer pieceAndLocation);
+    void pop();
+    QString printSteps();
 private:
     PuzzleContainer();
-    void renderPiecesToGrid();
-    QVector<PuzzlePiece> pieces;
+    QString printEmptyGrid();
+    int* renderPiecesToGrid();
+    QVector<PieceLocationContainer> piecesInContainer;
     int myWidth;
     int myHeight;
     int myDepth;
