@@ -1,4 +1,5 @@
 #include "puzzlecontainer.h"
+#include "canvasprinter.hpp"
 
 PuzzleContainer::PuzzleContainer(int width, int height, int depth) :
     myWidth(width),
@@ -6,7 +7,6 @@ PuzzleContainer::PuzzleContainer(int width, int height, int depth) :
     myDepth(depth)
 {
 }
-
 
 int* PuzzleContainer::renderPiecesToGrid()
 {
@@ -94,61 +94,18 @@ void PuzzleContainer::pop()
     piecesInContainer.removeLast();
 }
 
-QString PuzzleContainer::printEmptyGrid()
-{
-    int rowsToDraw = myWidth + myHeight + myDepth;
-    QString* drawArea[rowsToDraw];
-    for( int row = 0 ; row < rowsToDraw ; ++row )
-    {
-        drawArea[row] = new QString();
-        while( drawArea[row]->length() < (((myWidth+myHeight)*2)+1) )
-        {
-            *drawArea[row] += " ";
-        }
-    }
-    for( int depthCounter = 0 ; depthCounter < myDepth ; ++depthCounter )
-    {
-        QString* rowForAdd = drawArea[depthCounter];
-        (*rowForAdd)[((myWidth-1)*2)+2] = '|';
-        rowForAdd = drawArea[depthCounter+myWidth];
-                (*rowForAdd)[0] = '|';
-        rowForAdd = drawArea[depthCounter+myHeight];
-                (*rowForAdd)[rowForAdd->length()-1] = '|';
-    }
-    for( int widthCounter = 0 ; widthCounter < myWidth ; ++widthCounter )
-    {
-        QString* rowForAdd = drawArea[widthCounter];
-        (*rowForAdd)[((myWidth-(widthCounter+1))*2)+1] = '/';
-        rowForAdd = drawArea[widthCounter+myHeight+myDepth];
-                (*rowForAdd)[rowForAdd->length()-(widthCounter*2)-2] = '/';
-        rowForAdd = drawArea[widthCounter+myDepth];
-                (*rowForAdd)[((myWidth-1-widthCounter)*2)+1] = '/';
-    }
-    for( int heightCounter = 0 ; heightCounter < myHeight ; ++heightCounter )
-    {
-        QString* rowForAdd = drawArea[heightCounter];
-        (*rowForAdd)[((myWidth-1)*2)+3+(heightCounter*2)] = '\\';
-        rowForAdd = drawArea[heightCounter+myWidth+myDepth];
-                (*rowForAdd)[(heightCounter*2)+1] = '\\';
-        rowForAdd = drawArea[heightCounter+myDepth];
-                (*rowForAdd)[((myWidth+heightCounter-1)*2)+3] = '\\';
-    }
-    QString returnString;
-    for( int row = 0 ; row < rowsToDraw ; ++row )
-    {
-        returnString += *drawArea[row];
-        returnString += QString("\n");
-        delete drawArea[row];
-    }
-    return returnString;
-}
-
 QString PuzzleContainer::printSteps()
 {
-    int grid[myWidth][myHeight][myDepth];
-    int* gridPtr = renderPiecesToGrid();
-    memcpy(grid, gridPtr, sizeof(grid));
-    QString returnString = printEmptyGrid();
+    CanvasPrinter printer(myWidth, myHeight, myDepth);
+    const QString emptyGridString = printer.printEmptyGrid();
+    QString returnString = QString(emptyGridString);
+
+    QVector<PieceLocationContainer>::iterator containerIterator;
+    for( containerIterator = piecesInContainer.begin() ; containerIterator != piecesInContainer.end() ; ++containerIterator )
+    {
+        returnString += "\n";
+        returnString += printer.printPieceBlocksToCanvas(emptyGridString, *containerIterator);
+    }
 
     return returnString;
 }

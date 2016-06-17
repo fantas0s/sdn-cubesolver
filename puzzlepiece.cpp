@@ -1,20 +1,24 @@
 #include "puzzlepiece.h"
 #include <QDebug>
 
-void PuzzlePiece::addBlock(PieceBlock block)
+bool PuzzlePiece::blockFoundAt(const Coordinates location)
 {
-    bool blockIsDuplicate = false;
-
+    bool blockFound = false;
     QVector<PieceBlock>::iterator i;
     for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
     {
-        if( (*i).coords() == block.coords() )
+        if( (*i).coords() == location )
         {
-            blockIsDuplicate = true;
+            blockFound = true;
             break;
         }
     }
-    if( blockIsDuplicate )
+    return blockFound;
+}
+
+void PuzzlePiece::addBlock(PieceBlock block)
+{
+    if( blockFoundAt(block.coords()) )
     {
         qDebug() << "Duplicate block at coordinates" << block.coords().x << "," << block.coords().y << "," << block.coords().z << "- deleting it.";
     }
@@ -27,6 +31,11 @@ void PuzzlePiece::addBlock(PieceBlock block)
 int PuzzlePiece::numBlocks()
 {
     return myBlocks.length();
+}
+
+bool PuzzlePiece::noBlockAt(Coordinates location)
+{
+    return !blockFoundAt(location);
 }
 
 QVector<PieceBlock> PuzzlePiece::getBlockList()

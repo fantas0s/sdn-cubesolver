@@ -2,6 +2,7 @@
 #include <QtTest>
 #include "puzzlecontainer.h"
 #include "puzzlepiece.h"
+#include "canvasprinter.hpp"
 #include <iostream>
 
 class SDNCubeSolverTest : public QObject
@@ -15,12 +16,14 @@ private Q_SLOTS:
     void createOneTimeOnePiece();
     void createTwoTimeOnePiece();
     void createInvalidPiece();
+    void noBlockAt();
     void addOneTimeOnePiece();
     void addFiveTimeOnePiece();
     void renderToGrid();
     void addOverlappingOneTimeOnePieces();
     void popPiece();
     void printEmptyGrid();
+    void printPieceBlocksToCanvas();
     void printSteps();
 };
 
@@ -69,6 +72,16 @@ void SDNCubeSolverTest::createInvalidPiece()
     QCOMPARE(piece.numBlocks(), 3);
     piece.addBlock(PieceBlock(0,1,0));
     QCOMPARE(piece.numBlocks(), 3);
+}
+
+void SDNCubeSolverTest::noBlockAt()
+{
+    PuzzlePiece piece;
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(1,0,0));
+    piece.addBlock(PieceBlock(0,1,0));
+    QCOMPARE(piece.noBlockAt(Coordinates(1,1,0)), true);
+    QCOMPARE(piece.noBlockAt(Coordinates(0,1,0)), false);
 }
 
 void SDNCubeSolverTest::addOneTimeOnePiece()
@@ -194,12 +207,51 @@ static const QString expectedEmpty4x3x2 = QString(
 
 void SDNCubeSolverTest::printEmptyGrid()
 {
-    PuzzleContainer cube(2,3,4);
-    QString result = cube.printEmptyGrid();
+    CanvasPrinter printer(2,3,4);
+    QString result = printer.printEmptyGrid();
     QCOMPARE(result, expectedEmpty2x3x4);
-    cube = PuzzleContainer(4,3,2);
-    result = cube.printEmptyGrid();
+    printer = CanvasPrinter(4,3,2);
+    result = printer.printEmptyGrid();
     QCOMPARE(result, expectedEmpty4x3x2);
+}
+
+static const QString expectedPieceBlocks = QString(
+"                 \n"
+"       / \\       \n"
+"      |\\ /|      \n"
+"      | |/ \\     \n"
+"       \\ \\ /|    \n"
+"         \\|/     \n"
+"                 \n"
+"                 \n"
+"                 \n"
+"                 \n"
+"                 \n"
+"                 \n");
+
+void SDNCubeSolverTest::printPieceBlocksToCanvas()
+{
+    QString canvas = QString(
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n"
+    "                 \n");
+    CanvasPrinter printer(4,4,4);
+    PuzzlePiece piece;
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(0,1,0));
+    piece.addBlock(PieceBlock(0,0,1));
+    Coordinates coords(0,0,1);
+    QString printedCanvas = printer.printPieceBlocksToCanvas(canvas, PieceLocationContainer(piece, coords));
+    QCOMPARE(printedCanvas, expectedPieceBlocks);
 }
 
 static const QString expectedEmpty = QString(
@@ -216,14 +268,28 @@ static const QString expectedEmpty = QString(
 "     \\     /     \n"
 "       \\ /       \n");
 
-static const QString expectedOnePiece = QString(
+static const QString expectedFirstPiece = QString(
 "       /|\\       \n"
 "     /  |  \\     \n"
 "   /   / \\   \\   \n"
 " /    |\\ /|    \\ \n"
 "|    / \\|/ \\    |\n"
-"|   |\\ /|\\ /|\\  |\n"
+"|   |\\ /|\\ /|   |\n"
 "|  / \\|/ \\|/ \\  |\n"
+"|/             \\|\n"
+" \\             / \n"
+"   \\         /   \n"
+"     \\     /     \n"
+"       \\ /       \n");
+
+static const QString expectedSecondPiece = QString(
+"       /|\\       \n"
+"     /  |  \\     \n"
+"   /    |    \\   \n"
+" /      |      \\ \n"
+"|      / \\      |\n"
+"|    /|\\ /|\\    |\n"
+"|  /   \\|/   \\  |\n"
 "|/             \\|\n"
 " \\             / \n"
 "   \\         /   \n"
@@ -233,8 +299,6 @@ static const QString expectedOnePiece = QString(
 void SDNCubeSolverTest::printSteps()
 {
     PuzzleContainer cube(4,4,4);
-    QString instructions = cube.printSteps();
-    QCOMPARE(instructions, expectedEmpty);
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
     piece.addBlock(PieceBlock(1,0,0));
@@ -242,8 +306,16 @@ void SDNCubeSolverTest::printSteps()
     piece.addBlock(PieceBlock(0,0,1));
     Coordinates coords(0,0,0);
     cube.add(PieceLocationContainer(piece, coords));
+    QString instructions = cube.printSteps();
+    QString expected = expectedEmpty+"\n"+expectedFirstPiece;
+    QCOMPARE(instructions, expected);
+    piece = PuzzlePiece();
+    piece.addBlock(PieceBlock(0,0,0));
+    coords = Coordinates(1,1,1);
+    cube.add(PieceLocationContainer(piece, coords));
     instructions = cube.printSteps();
-    //QCOMPARE(instructions, expectedOnePiece);
+    expected = expectedEmpty+"\n"+expectedFirstPiece+"\n"+expectedSecondPiece;
+    QCOMPARE(instructions, expected);
 }
 
 QTEST_APPLESS_MAIN(SDNCubeSolverTest)

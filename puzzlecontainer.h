@@ -12,7 +12,6 @@ public:
     QString printSteps();
 private:
     PuzzleContainer();
-    QString printEmptyGrid();
     int* renderPiecesToGrid();
     QVector<PieceLocationContainer> piecesInContainer;
     int myWidth;

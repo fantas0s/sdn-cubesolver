@@ -19,7 +19,8 @@ SOURCES += tst_sdncubesolvertest.cpp \
     puzzlepiece.cpp \
     pieceblock.cpp \
     puzzlecontainer.cpp \
-    piecelocationcontainer.cpp
+    piecelocationcontainer.cpp \
+    canvasprinter.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
@@ -27,4 +28,5 @@ HEADERS += \
     puzzlepiece.h \
     pieceblock.h \
     coordinates.h \
-    piecelocationcontainer.h
+    piecelocationcontainer.h \
+    canvasprinter.hpp
