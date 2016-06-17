@@ -24,6 +24,7 @@ private Q_SLOTS:
     void popPiece();
     void printEmptyGrid();
     void printPieceBlocksToCanvas();
+    void printPlusPiece();
     void printSteps();
 };
 
@@ -251,6 +252,22 @@ void SDNCubeSolverTest::printPieceBlocksToCanvas()
     piece.addBlock(PieceBlock(0,0,1));
     Coordinates coords(0,0,1);
     QString printedCanvas = printer.printPieceBlocksToCanvas(canvas, PieceLocationContainer(piece, coords));
+    QCOMPARE(printedCanvas, expectedPieceBlocks);
+}
+
+void SDNCubeSolverTest::printPlusPiece()
+{
+    CanvasPrinter printer(4,4,4);
+    PuzzlePiece piece;
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(1,0,0));
+    piece.addBlock(PieceBlock(0,1,0));
+    piece.addBlock(PieceBlock(-1,0,0));
+    piece.addBlock(PieceBlock(0,-1,0));
+    Coordinates coords(1,1,0);
+    QString canvas = printer.printEmptyGrid();
+    QString printedCanvas = printer.printPieceBlocksToCanvas(canvas, PieceLocationContainer(piece, coords));
+    std::cout << printedCanvas.toStdString();
     QCOMPARE(printedCanvas, expectedPieceBlocks);
 }
 

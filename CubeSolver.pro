@@ -10,4 +10,17 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += \
-    cubesolver.cpp
+    cubesolver.cpp \
+    canvasprinter.cpp \
+    pieceblock.cpp \
+    piecelocationcontainer.cpp \
+    puzzlecontainer.cpp \
+    puzzlepiece.cpp
+
+HEADERS += \
+    canvasprinter.hpp \
+    coordinates.h \
+    pieceblock.h \
+    piecelocationcontainer.h \
+    puzzlecontainer.h \
+    puzzlepiece.h
