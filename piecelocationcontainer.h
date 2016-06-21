@@ -6,11 +6,11 @@
 class PieceLocationContainer
 {
 public:
-    PieceLocationContainer(PuzzlePiece piece, Coordinates location);
+    PieceLocationContainer(const PuzzlePiece *piece, const Coordinates *location);
     PieceLocationContainer() :
         myLocation(0,0,0){}
-    PuzzlePiece piece();
-    Coordinates location();
+    const PuzzlePiece *piece();
+    const Coordinates *location();
 private:
     PuzzlePiece myPiece;
     Coordinates myLocation;

@@ -10,12 +10,14 @@ PieceBlock::PieceBlock(int x, int y, int z) :
 {
 }
 
-Coordinates PieceBlock::coords() const
+const Coordinates *PieceBlock::coords() const
 {
-    return myCoordinates;
+    return &myCoordinates;
 }
 
 void PieceBlock::updateCoordinates(int x, int y, int z)
 {
-    myCoordinates = Coordinates(x,y,z);
+    myCoordinates.x = x;
+    myCoordinates.y = y;
+    myCoordinates.z = z;
 }

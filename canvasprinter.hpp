@@ -16,10 +16,10 @@ private:
     int myHeight;
     int myDepth;
     QString createCombinedStringForDrawing(QVector<QString*> *drawArea);
-    void drawXAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
-    void drawYAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
-    void drawZAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
-    void drawBlockTop(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
+    void drawXAxisLines(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea);
+    void drawYAxisLines(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea);
+    void drawZAxisLines(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea);
+    void drawBlockTop(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea);
 };
 
 #endif // CANVASPRINTER_HPP

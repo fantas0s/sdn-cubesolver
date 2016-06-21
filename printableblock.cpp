@@ -1,7 +1,7 @@
 #include "printableblock.h"
 
 PrintableBlock::PrintableBlock(PieceBlock origin) :
-    PieceBlock(origin.coords().x, origin.coords().y, origin.coords().z),
+    PieceBlock(origin.coords()->x, origin.coords()->y, origin.coords()->z),
     printed(false)
 {
 }

@@ -7,7 +7,7 @@ class PieceBlock
 public:
     PieceBlock();
     PieceBlock(int x, int y, int z);
-    Coordinates coords() const;
+    const Coordinates *coords() const;
     void updateCoordinates(int x, int y, int z);
 private:
     Coordinates myCoordinates;

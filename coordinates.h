@@ -11,7 +11,7 @@ public:
         x(initialX),
         y(initialY),
         z(initialZ) {}
-    bool operator == (Coordinates arg)
+    bool operator == (const Coordinates arg) const
     {
         if( (x == arg.x) &&
             (y == arg.y) &&
@@ -20,7 +20,7 @@ public:
         else
             return false;
     }
-    bool operator > (Coordinates arg)
+    bool operator > (const Coordinates arg) const
     {
         if( (x >= arg.x) &&
             (y >= arg.y) &&

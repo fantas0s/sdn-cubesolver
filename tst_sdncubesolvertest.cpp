@@ -42,11 +42,11 @@ void SDNCubeSolverTest::createOneTimeOnePiece()
     QCOMPARE(piece.numBlocks(), 0);
     piece.addBlock(PieceBlock(0,0,0));
     QCOMPARE(piece.numBlocks(), 1);
-    PieceBlock* blocksList = piece.getBlockList();
-    Coordinates coordinates = blocksList[0].coords();
-    QCOMPARE(coordinates.x, 0);
-    QCOMPARE(coordinates.y, 0);
-    QCOMPARE(coordinates.z, 0);
+    const PieceBlock* blocksList = piece.getBlockList();
+    const Coordinates *coordinates = blocksList[0].coords();
+    QCOMPARE(coordinates->x, 0);
+    QCOMPARE(coordinates->y, 0);
+    QCOMPARE(coordinates->z, 0);
 }
 
 void SDNCubeSolverTest::createTwoTimeOnePiece()
@@ -55,15 +55,15 @@ void SDNCubeSolverTest::createTwoTimeOnePiece()
     piece.addBlock(PieceBlock(0,0,0));
     piece.addBlock(PieceBlock(1,2,3));
     QCOMPARE(piece.numBlocks(), 2);
-    PieceBlock* blocksList = piece.getBlockList();
-    Coordinates coordinates = blocksList[0].coords();
-    QCOMPARE(coordinates.x, 0);
-    QCOMPARE(coordinates.y, 0);
-    QCOMPARE(coordinates.z, 0);
+    const PieceBlock* blocksList = piece.getBlockList();
+    const Coordinates *coordinates = blocksList[0].coords();
+    QCOMPARE(coordinates->x, 0);
+    QCOMPARE(coordinates->y, 0);
+    QCOMPARE(coordinates->z, 0);
     coordinates = blocksList[1].coords();
-    QCOMPARE(coordinates.x, 1);
-    QCOMPARE(coordinates.y, 2);
-    QCOMPARE(coordinates.z, 3);
+    QCOMPARE(coordinates->x, 1);
+    QCOMPARE(coordinates->y, 2);
+    QCOMPARE(coordinates->z, 3);
 }
 
 void SDNCubeSolverTest::createInvalidPiece()
@@ -83,7 +83,8 @@ void SDNCubeSolverTest::noBlockAt()
     piece.addBlock(PieceBlock(0,0,0));
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(0,1,0));
-    PieceLocationContainer container(piece, Coordinates(1,1,1));
+    Coordinates location(1,1,1);
+    PieceLocationContainer container(&piece, &location);
     PrintablePiece pPiece(container);
     QCOMPARE(pPiece.noBlockAt(Coordinates(2,2,1)), true);
     QCOMPARE(pPiece.noBlockAt(Coordinates(1,2,1)), false);
@@ -137,8 +138,8 @@ void SDNCubeSolverTest::addOneTimeOnePiece()
     PuzzleContainer cube(1,1,1);
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
-    Coordinates coords(0,0,0);
-    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    Coordinates location(0,0,0);
+    QVERIFY(cube.add(PieceLocationContainer(&piece, &location)));
 }
 
 void SDNCubeSolverTest::addFiveTimeOnePiece()
@@ -150,8 +151,8 @@ void SDNCubeSolverTest::addFiveTimeOnePiece()
     piece.addBlock(PieceBlock(0,2,0));
     piece.addBlock(PieceBlock(0,3,0));
     piece.addBlock(PieceBlock(0,4,0));
-    Coordinates coords(0,0,0);
-    QCOMPARE(cube.add(PieceLocationContainer(piece, coords)), false);
+    Coordinates location(0,0,0);
+    QCOMPARE(cube.add(PieceLocationContainer(&piece, &location)), false);
 }
 
 void SDNCubeSolverTest::renderToGrid()
@@ -170,12 +171,12 @@ void SDNCubeSolverTest::renderToGrid()
     QCOMPARE(grid[0][0][0], 0);
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
-    Coordinates coords(0,0,0);
-    cube.piecesInContainer.append(PieceLocationContainer(piece, coords));
+    Coordinates location(0,0,0);
+    cube.piecesInContainer.append(PieceLocationContainer(&piece, &location));
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,2,0));
     piece.addBlock(PieceBlock(0,3,0));
-    cube.piecesInContainer.append(PieceLocationContainer(piece, coords));
+    cube.piecesInContainer.append(PieceLocationContainer(&piece, &location));
     returned = cube.renderPiecesToGrid();
     memcpy(grid, returned, sizeof(grid));
     QCOMPARE(grid[0][0][0], 2);
@@ -189,13 +190,13 @@ void SDNCubeSolverTest::addOverlappingOneTimeOnePieces()
     PuzzleContainer cube(4,4,4);
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(0,0,0));
-    Coordinates coords(0,0,0);
-    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    Coordinates location(0,0,0);
+    QVERIFY(cube.add(PieceLocationContainer(&piece, &location)));
     int grid[cube.myWidth][cube.myHeight][cube.myDepth];
     int* returned = cube.renderPiecesToGrid();
     memcpy(grid, returned, sizeof(grid));
     QCOMPARE(grid[0][0][0], 1);
-    QCOMPARE(cube.add(PieceLocationContainer(piece, coords)), false);
+    QCOMPARE(cube.add(PieceLocationContainer(&piece, &location)), false);
     returned = cube.renderPiecesToGrid();
     memcpy(grid, returned, sizeof(grid));
     QCOMPARE(grid[0][0][0], 1);
@@ -209,12 +210,12 @@ void SDNCubeSolverTest::popPiece()
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,0,1));
-    Coordinates coords(0,0,0);
-    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    Coordinates location(0,0,0);
+    QVERIFY(cube.add(PieceLocationContainer(&piece, &location)));
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
-    coords = Coordinates(1,1,1);
-    QVERIFY(cube.add(PieceLocationContainer(piece, coords)));
+    location = Coordinates(1,1,1);
+    QVERIFY(cube.add(PieceLocationContainer(&piece, &location)));
     int grid[cube.myWidth][cube.myHeight][cube.myDepth];
     int* returned = cube.renderPiecesToGrid();
     memcpy(grid, returned, sizeof(grid));
@@ -237,22 +238,23 @@ void SDNCubeSolverTest::createPrintablePiece()
     PieceBlock block(1,2,3);
     PrintableBlock printableB(block);
     PieceBlock* parentClassObject = &printableB;
-    QCOMPARE(printableB.coords().x, 1);
-    QCOMPARE(printableB.coords().y, 2);
-    QCOMPARE(printableB.coords().z, 3);
-    QCOMPARE(parentClassObject->coords().x, 1);
-    QCOMPARE(parentClassObject->coords().y, 2);
-    QCOMPARE(parentClassObject->coords().z, 3);
+    QCOMPARE(printableB.coords()->x, 1);
+    QCOMPARE(printableB.coords()->y, 2);
+    QCOMPARE(printableB.coords()->z, 3);
+    QCOMPARE(parentClassObject->coords()->x, 1);
+    QCOMPARE(parentClassObject->coords()->y, 2);
+    QCOMPARE(parentClassObject->coords()->z, 3);
     QCOMPARE(printableB.notPrinted(), true);
     printableB.setPrinted();
     QCOMPARE(printableB.notPrinted(), false);
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(2,3,4));
-    PieceLocationContainer container(piece, Coordinates(0,0,0));
+    Coordinates location(0,0,0);
+    PieceLocationContainer container(&piece, &location);
     PrintablePiece printableP(container);
     QVector<PrintableBlock> blockV = printableP.getBlockList();
     QCOMPARE(blockV.length(), 1);
-    QCOMPARE(blockV.at(0).coords().y, 3);
+    QCOMPARE(blockV.at(0).coords()->y, 3);
 }
 
 static const QString expectedEmpty2x3x4 = QString(
@@ -321,8 +323,8 @@ void SDNCubeSolverTest::printPieceBlocksToCanvas()
     piece.addBlock(PieceBlock(0,0,0));
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,0,1));
-    Coordinates coords(0,0,1);
-    QString printedCanvas = printer.printPieceBlocksToCanvas(QString(emptyCanvas), PieceLocationContainer(piece, coords));
+    Coordinates location(0,0,1);
+    QString printedCanvas = printer.printPieceBlocksToCanvas(QString(emptyCanvas), PieceLocationContainer(&piece, &location));
     QCOMPARE(printedCanvas, expectedPieceBlocks);
 }
 
@@ -349,9 +351,9 @@ void SDNCubeSolverTest::printPlusPiece()
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(-1,0,0));
     piece.addBlock(PieceBlock(0,-1,0));
-    Coordinates coords(1,1,0);
+    Coordinates location(1,1,0);
     QString canvas = printer.printEmptyGrid();
-    QString printedCanvas = printer.printPieceBlocksToCanvas(canvas, PieceLocationContainer(piece, coords));
+    QString printedCanvas = printer.printPieceBlocksToCanvas(canvas, PieceLocationContainer(&piece, &location));
     QCOMPARE(printedCanvas, expectedPlus);
 }
 
@@ -405,15 +407,15 @@ void SDNCubeSolverTest::printSteps()
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,0,1));
-    Coordinates coords(0,0,0);
-    cube.add(PieceLocationContainer(piece, coords));
+    Coordinates location(0,0,0);
+    cube.add(PieceLocationContainer(&piece, &location));
     QString instructions = cube.printSteps();
     QString expected = expectedEmpty+"\n"+expectedFirstPiece;
     QCOMPARE(instructions, expected);
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
-    coords = Coordinates(1,1,1);
-    cube.add(PieceLocationContainer(piece, coords));
+    location = Coordinates(1,1,1);
+    cube.add(PieceLocationContainer(&piece, &location));
     instructions = cube.printSteps();
     expected = expectedEmpty+"\n"+expectedFirstPiece+"\n"+expectedSecondPiece;
     QCOMPARE(instructions, expected);

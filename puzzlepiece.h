@@ -10,8 +10,8 @@ class PuzzlePiece
 public:
     PuzzlePiece();
     void addBlock(PieceBlock block);
-    int numBlocks();
-    PieceBlock* getBlockList();
+    int numBlocks() const;
+    const PieceBlock* getBlockList() const;
     void rotate();
 private:
     PieceBlock myBlocks[MAX_BLOCKS];

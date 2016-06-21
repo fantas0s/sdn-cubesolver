@@ -26,14 +26,15 @@ int* PuzzleContainer::renderPiecesToGrid()
     QVector<PieceLocationContainer>::iterator containerIterator;
     for( containerIterator = piecesInContainer.begin() ; containerIterator != piecesInContainer.end() ; ++containerIterator )
     {
-        PuzzlePiece piece = (*containerIterator).piece();
-        Coordinates location = (*containerIterator).location();
-        PieceBlock* pieceBlocks = piece.getBlockList();
-        for (int i = 0 ; i < piece.numBlocks() ; ++i )
+        const PuzzlePiece *piece = (*containerIterator).piece();
+        const Coordinates *location = (*containerIterator).location();
+        const PieceBlock *pieceBlocks = piece->getBlockList();
+        for (int i = 0 ; i < piece->numBlocks() ; ++i )
         {
-            grid[pieceBlocks[i].coords().x + location.x]
-                [pieceBlocks[i].coords().y + location.y]
-                [pieceBlocks[i].coords().z + location.z] += 1;
+            const Coordinates *curr = pieceBlocks[i].coords();
+            grid[curr->x + location->x]
+                [curr->y + location->y]
+                [curr->z + location->z] += 1;
         }
     }
     memcpy(returnValue, grid, sizeof(grid));
@@ -42,18 +43,19 @@ int* PuzzleContainer::renderPiecesToGrid()
 
 bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
 {
-    PuzzlePiece piece = pieceAndLocation.piece();
-    Coordinates location = pieceAndLocation.location();
+    const PuzzlePiece *piece = pieceAndLocation.piece();
+    const Coordinates *location = pieceAndLocation.location();
     bool doesNotFit = false;
-    PieceBlock* pieceBlocks = piece.getBlockList();
-    for (int i = 0 ; i < piece.numBlocks() ; ++i )
+    const PieceBlock *pieceBlocks = piece->getBlockList();
+    for (int i = 0 ; i < piece->numBlocks() ; ++i )
     {
-        if( (pieceBlocks[i].coords().x + location.x < 0) ||
-            (pieceBlocks[i].coords().x + location.x >= myWidth) ||
-            (pieceBlocks[i].coords().y + location.y < 0) ||
-            (pieceBlocks[i].coords().y + location.y >= myHeight) ||
-            (pieceBlocks[i].coords().z + location.z < 0) ||
-            (pieceBlocks[i].coords().z + location.z >= myDepth) )
+        const Coordinates *curr = pieceBlocks[i].coords();
+        if( (curr->x + location->x < 0) ||
+            (curr->x + location->x >= myWidth) ||
+            (curr->y + location->y < 0) ||
+            (curr->y + location->y >= myHeight) ||
+            (curr->z + location->z < 0) ||
+            (curr->z + location->z >= myDepth) )
         {
             doesNotFit = true;
             break;

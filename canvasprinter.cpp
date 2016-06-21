@@ -67,7 +67,7 @@ QString CanvasPrinter::printEmptyGrid()
     return createCombinedStringForDrawing(&drawArea);
 }
 
-void CanvasPrinter::drawXAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawXAxisLines(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea)
 {
     if( piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z+1)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) == piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z)) ) )
@@ -92,7 +92,7 @@ void CanvasPrinter::drawXAxisLines(PrintablePiece piece, Coordinates curr, QVect
     }
 }
 
-void CanvasPrinter::drawYAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawYAxisLines(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea)
 {
     if( piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z+1)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) == piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z)) ) )
@@ -117,7 +117,7 @@ void CanvasPrinter::drawYAxisLines(PrintablePiece piece, Coordinates curr, QVect
     }
 }
 
-void CanvasPrinter::drawZAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawZAxisLines(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea)
 {
     if( piece.noBlockAt(Coordinates(curr.x+1, curr.y+1, curr.z)) &&
         ( piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z)) == piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z)) ) )
@@ -142,7 +142,7 @@ void CanvasPrinter::drawZAxisLines(PrintablePiece piece, Coordinates curr, QVect
     }
 }
 
-void CanvasPrinter::drawBlockTop(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawBlockTop(PrintablePiece piece, const Coordinates curr, QVector<QString*> drawArea)
 {
     if( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) )
     {
@@ -166,10 +166,11 @@ QString CanvasPrinter::printPieceBlocksToCanvas(const QString canvas, PieceLocat
     PrintablePiece printablePiece(pieceToPrint);
     QVector<PrintableBlock> pieceBlocks = printablePiece.getBlockList();
     bool blocksLeftToPrint;
+    Coordinates frontMost(myWidth,myHeight,myDepth);
     do
     {
         blocksLeftToPrint= false;
-        Coordinates back(myWidth,myHeight,myDepth);
+        const Coordinates *back = &frontMost;
         PrintableBlock* blockToPrint = Q_NULLPTR;
         QVector<PrintableBlock>::iterator i;
         for (i = pieceBlocks.begin() ; i != pieceBlocks.end() ; ++i )
@@ -177,8 +178,8 @@ QString CanvasPrinter::printPieceBlocksToCanvas(const QString canvas, PieceLocat
             if( i->notPrinted() )
             {
                 blocksLeftToPrint = true;
-                Coordinates curr = i->coords();
-                if( back > curr )
+                const Coordinates* curr = i->coords();
+                if( (*back) > (*curr) )
                 {
                     back = curr;
                     blockToPrint = i;
@@ -188,10 +189,10 @@ QString CanvasPrinter::printPieceBlocksToCanvas(const QString canvas, PieceLocat
         if( blockToPrint )
         {
             blockToPrint->setPrinted();
-            drawXAxisLines(printablePiece, back, drawArea);
-            drawYAxisLines(printablePiece, back, drawArea);
-            drawZAxisLines(printablePiece, back, drawArea);
-            drawBlockTop(printablePiece, back, drawArea);
+            drawXAxisLines(printablePiece, *back, drawArea);
+            drawYAxisLines(printablePiece, *back, drawArea);
+            drawZAxisLines(printablePiece, *back, drawArea);
+            drawBlockTop(printablePiece, *back, drawArea);
         }
     } while( blocksLeftToPrint );
     return createCombinedStringForDrawing(&drawArea);

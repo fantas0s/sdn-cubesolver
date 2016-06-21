@@ -2,12 +2,12 @@
 
 PrintablePiece::PrintablePiece(PieceLocationContainer origin)
 {
-    PieceBlock* blockList = origin.piece().getBlockList();
-    for (int i = 0 ; i < origin.piece().numBlocks() ; ++i )
+    const PieceBlock* blockList = origin.piece()->getBlockList();
+    for (int i = 0 ; i < origin.piece()->numBlocks() ; ++i )
     {
-        addBlock(PieceBlock(blockList[i].coords().x + origin.location().x,
-                            blockList[i].coords().y + origin.location().y,
-                            blockList[i].coords().z + origin.location().z));
+        addBlock(PieceBlock(blockList[i].coords()->x + origin.location()->x,
+                            blockList[i].coords()->y + origin.location()->y,
+                            blockList[i].coords()->z + origin.location()->z));
     }
 }
 
@@ -23,7 +23,7 @@ bool PrintablePiece::noBlockAt(Coordinates location)
     QVector<PrintableBlock>::iterator i;
     for (i = myFixedBlocks.begin(); i != myFixedBlocks.end(); ++i)
     {
-        if( (*i).coords() == location )
+        if( *((*i).coords()) == location )
         {
             blockFound = true;
             break;

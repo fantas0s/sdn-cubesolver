@@ -12,7 +12,7 @@ bool PuzzlePiece::blockFoundAt(const Coordinates location)
     bool blockFound = false;
     for (int i = 0; i < myBlockCount ; ++i)
     {
-        if( myBlocks[i].coords() == location )
+        if( *(myBlocks[i].coords()) == location )
         {
             blockFound = true;
             break;
@@ -24,9 +24,9 @@ bool PuzzlePiece::blockFoundAt(const Coordinates location)
 void PuzzlePiece::addBlock(PieceBlock block)
 {
     Q_ASSERT(myBlockCount < MAX_BLOCKS);
-    if( blockFoundAt(block.coords()) )
+    if( blockFoundAt(*block.coords()) )
     {
-        qDebug() << "Duplicate block at coordinates" << block.coords().x << "," << block.coords().y << "," << block.coords().z << "- deleting it.";
+        qDebug() << "Duplicate block at coordinates" << block.coords()->x << "," << block.coords()->y << "," << block.coords()->z << "- deleting it.";
     }
     else
     {
@@ -35,12 +35,12 @@ void PuzzlePiece::addBlock(PieceBlock block)
     }
 }
 
-int PuzzlePiece::numBlocks()
+int PuzzlePiece::numBlocks() const
 {
     return myBlockCount;
 }
 
-PieceBlock* PuzzlePiece::getBlockList()
+const PieceBlock* PuzzlePiece::getBlockList() const
 {
     return myBlocks;
 }
@@ -51,7 +51,8 @@ void PuzzlePiece::rotate()
     {
         for (int i = 0; i < myBlockCount ; ++i)
         {
-            myBlocks[i].updateCoordinates(myBlocks[i].coords().y, -1*myBlocks[i].coords().x, myBlocks[i].coords().z);
+            const Coordinates *curr = myBlocks[i].coords();
+            myBlocks[i].updateCoordinates(curr->y, -1*curr->x, curr->z);
         }
     }
     if( (3 == rotations) ||
@@ -60,7 +61,8 @@ void PuzzlePiece::rotate()
         // 90 degrees around X-axis
         for (int i = 0; i < myBlockCount ; ++i)
         {
-            myBlocks[i].updateCoordinates(myBlocks[i].coords().x, -1*myBlocks[i].coords().z, myBlocks[i].coords().y);
+            const Coordinates *curr = myBlocks[i].coords();
+            myBlocks[i].updateCoordinates(curr->x, -1*curr->z, curr->y);
         }
     }
     else if( 4 == rotations)
@@ -68,7 +70,8 @@ void PuzzlePiece::rotate()
         // 180 degrees around X-axis
         for (int i = 0; i < myBlockCount ; ++i)
         {
-            myBlocks[i].updateCoordinates(myBlocks[i].coords().x, -1*myBlocks[i].coords().y, -1*myBlocks[i].coords().z);
+            const Coordinates *curr = myBlocks[i].coords();
+            myBlocks[i].updateCoordinates(curr->x, -1*curr->y, -1*curr->z);
         }
     }
     rotations++;
