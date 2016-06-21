@@ -190,7 +190,10 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
 
 int main(int argc, char *argv[])
 {
-    // Approximate time to try ALL combinations: 90 * 90 * 90 * 400 seconds = 3375 days...
+    /* Approximate time to try ALL combinations:
+     * Unoptimized code: 90 * 90 * 90 * 400 seconds = 3375 days...
+     * Use of vectors removed from class PuzzlePiece: 90 * 90 * 90 * 100 seconds = 843 days...
+     */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
     QVector<PuzzlePiece> pieces = createAllPieces();
     Q_ASSERT( pieces.length() == NUM_PIECES );
