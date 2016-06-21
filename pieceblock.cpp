@@ -14,3 +14,8 @@ Coordinates PieceBlock::coords() const
 {
     return myCoordinates;
 }
+
+void PieceBlock::updateCoordinates(int x, int y, int z)
+{
+    myCoordinates = Coordinates(x,y,z);
+}

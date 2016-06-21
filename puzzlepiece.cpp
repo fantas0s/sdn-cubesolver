@@ -2,6 +2,7 @@
 #include <QDebug>
 
 PuzzlePiece::PuzzlePiece() :
+    myBlockCount(0),
     rotations(0)
 {
 }
@@ -9,10 +10,9 @@ PuzzlePiece::PuzzlePiece() :
 bool PuzzlePiece::blockFoundAt(const Coordinates location)
 {
     bool blockFound = false;
-    QVector<PieceBlock>::iterator i;
-    for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+    for (int i = 0; i < myBlockCount ; ++i)
     {
-        if( (*i).coords() == location )
+        if( myBlocks[i].coords() == location )
         {
             blockFound = true;
             break;
@@ -23,22 +23,24 @@ bool PuzzlePiece::blockFoundAt(const Coordinates location)
 
 void PuzzlePiece::addBlock(PieceBlock block)
 {
+    Q_ASSERT(myBlockCount < MAX_BLOCKS);
     if( blockFoundAt(block.coords()) )
     {
         qDebug() << "Duplicate block at coordinates" << block.coords().x << "," << block.coords().y << "," << block.coords().z << "- deleting it.";
     }
     else
     {
-        myBlocks.append(block);
+        myBlocks[myBlockCount] = block;
+        myBlockCount++;
     }
 }
 
 int PuzzlePiece::numBlocks()
 {
-    return myBlocks.length();
+    return myBlockCount;
 }
 
-QVector<PieceBlock> PuzzlePiece::getBlockList()
+PieceBlock* PuzzlePiece::getBlockList()
 {
     return myBlocks;
 }
@@ -47,39 +49,27 @@ void PuzzlePiece::rotate()
 {
     if( rotations < 4 )
     {
-        QVector<PieceBlock> newBlockList;
-        QVector<PieceBlock>::iterator i;
-        for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+        for (int i = 0; i < myBlockCount ; ++i)
         {
-            Coordinates curr = i->coords();
-            newBlockList.append(PieceBlock(curr.y, -1*curr.x, curr.z));
+            myBlocks[i].updateCoordinates(myBlocks[i].coords().y, -1*myBlocks[i].coords().x, myBlocks[i].coords().z);
         }
-        myBlocks = newBlockList;
     }
     if( (3 == rotations) ||
         (5 == rotations) )
     {
         // 90 degrees around X-axis
-        QVector<PieceBlock> newBlockList;
-        QVector<PieceBlock>::iterator i;
-        for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+        for (int i = 0; i < myBlockCount ; ++i)
         {
-            Coordinates curr = i->coords();
-            newBlockList.append(PieceBlock(curr.x, -1*curr.z, curr.y));
+            myBlocks[i].updateCoordinates(myBlocks[i].coords().x, -1*myBlocks[i].coords().z, myBlocks[i].coords().y);
         }
-        myBlocks = newBlockList;
     }
     else if( 4 == rotations)
     {
         // 180 degrees around X-axis
-        QVector<PieceBlock> newBlockList;
-        QVector<PieceBlock>::iterator i;
-        for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+        for (int i = 0; i < myBlockCount ; ++i)
         {
-            Coordinates curr = i->coords();
-            newBlockList.append(PieceBlock(curr.x, -1*curr.y, -1*curr.z));
+            myBlocks[i].updateCoordinates(myBlocks[i].coords().x, -1*myBlocks[i].coords().y, -1*myBlocks[i].coords().z);
         }
-        myBlocks = newBlockList;
     }
     rotations++;
     if( rotations > 5 )

@@ -28,13 +28,12 @@ int* PuzzleContainer::renderPiecesToGrid()
     {
         PuzzlePiece piece = (*containerIterator).piece();
         Coordinates location = (*containerIterator).location();
-        QVector<PieceBlock> pieceBlocks = piece.getBlockList();
-        QVector<PieceBlock>::iterator blockIterator;
-        for (blockIterator = pieceBlocks.begin(); blockIterator != pieceBlocks.end(); ++blockIterator)
+        PieceBlock* pieceBlocks = piece.getBlockList();
+        for (int i = 0 ; i < piece.numBlocks() ; ++i )
         {
-            grid[(*blockIterator).coords().x + location.x]
-                [(*blockIterator).coords().y + location.y]
-                [(*blockIterator).coords().z + location.z] += 1;
+            grid[pieceBlocks[i].coords().x + location.x]
+                [pieceBlocks[i].coords().y + location.y]
+                [pieceBlocks[i].coords().z + location.z] += 1;
         }
     }
     memcpy(returnValue, grid, sizeof(grid));
@@ -46,16 +45,15 @@ bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
     PuzzlePiece piece = pieceAndLocation.piece();
     Coordinates location = pieceAndLocation.location();
     bool doesNotFit = false;
-    QVector<PieceBlock> pieceBlocks = piece.getBlockList();
-    QVector<PieceBlock>::iterator i;
-    for (i = pieceBlocks.begin(); i != pieceBlocks.end(); ++i)
+    PieceBlock* pieceBlocks = piece.getBlockList();
+    for (int i = 0 ; i < piece.numBlocks() ; ++i )
     {
-        if( ((*i).coords().x + location.x < 0) ||
-            ((*i).coords().x + location.x >= myWidth) ||
-            ((*i).coords().y + location.y < 0) ||
-            ((*i).coords().y + location.y >= myHeight) ||
-            ((*i).coords().z + location.z < 0) ||
-            ((*i).coords().z + location.z >= myDepth) )
+        if( (pieceBlocks[i].coords().x + location.x < 0) ||
+            (pieceBlocks[i].coords().x + location.x >= myWidth) ||
+            (pieceBlocks[i].coords().y + location.y < 0) ||
+            (pieceBlocks[i].coords().y + location.y >= myHeight) ||
+            (pieceBlocks[i].coords().z + location.z < 0) ||
+            (pieceBlocks[i].coords().z + location.z >= myDepth) )
         {
             doesNotFit = true;
             break;

@@ -2,6 +2,7 @@
 #define PUZZLEPIECE_H
 #include "pieceblock.h"
 #include <QVector>
+#define MAX_BLOCKS 5
 
 class PuzzlePiece
 {
@@ -10,10 +11,11 @@ public:
     PuzzlePiece();
     void addBlock(PieceBlock block);
     int numBlocks();
-    QVector<PieceBlock> getBlockList();
+    PieceBlock* getBlockList();
     void rotate();
 private:
-    QVector<PieceBlock> myBlocks;
+    PieceBlock myBlocks[MAX_BLOCKS];
+    int myBlockCount;
     bool blockFoundAt(const Coordinates location);
     int rotations;
 };

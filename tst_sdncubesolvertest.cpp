@@ -42,9 +42,8 @@ void SDNCubeSolverTest::createOneTimeOnePiece()
     QCOMPARE(piece.numBlocks(), 0);
     piece.addBlock(PieceBlock(0,0,0));
     QCOMPARE(piece.numBlocks(), 1);
-    QVector<PieceBlock> blocksList = piece.getBlockList();
-    QCOMPARE(blocksList.length(), 1);
-    Coordinates coordinates = blocksList.at(0).coords();
+    PieceBlock* blocksList = piece.getBlockList();
+    Coordinates coordinates = blocksList[0].coords();
     QCOMPARE(coordinates.x, 0);
     QCOMPARE(coordinates.y, 0);
     QCOMPARE(coordinates.z, 0);
@@ -56,13 +55,12 @@ void SDNCubeSolverTest::createTwoTimeOnePiece()
     piece.addBlock(PieceBlock(0,0,0));
     piece.addBlock(PieceBlock(1,2,3));
     QCOMPARE(piece.numBlocks(), 2);
-    QVector<PieceBlock> blocksList = piece.getBlockList();
-    QCOMPARE(blocksList.length(), 2);
-    Coordinates coordinates = blocksList.at(0).coords();
+    PieceBlock* blocksList = piece.getBlockList();
+    Coordinates coordinates = blocksList[0].coords();
     QCOMPARE(coordinates.x, 0);
     QCOMPARE(coordinates.y, 0);
     QCOMPARE(coordinates.z, 0);
-    coordinates = blocksList.at(1).coords();
+    coordinates = blocksList[1].coords();
     QCOMPARE(coordinates.x, 1);
     QCOMPARE(coordinates.y, 2);
     QCOMPARE(coordinates.z, 3);
