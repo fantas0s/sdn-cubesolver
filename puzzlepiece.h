@@ -5,14 +5,17 @@
 
 class PuzzlePiece
 {
+    friend class SDNCubeSolverTest;
 public:
+    PuzzlePiece();
     void addBlock(PieceBlock block);
     int numBlocks();
-    bool noBlockAt(Coordinates location);
     QVector<PieceBlock> getBlockList();
+    void rotate();
 private:
     QVector<PieceBlock> myBlocks;
     bool blockFoundAt(const Coordinates location);
+    int rotations;
 };
 
 #endif // PUZZLEPIECE_H

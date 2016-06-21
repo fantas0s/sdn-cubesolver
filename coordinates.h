@@ -20,6 +20,15 @@ public:
         else
             return false;
     }
+    bool operator > (Coordinates arg)
+    {
+        if( (x >= arg.x) &&
+            (y >= arg.y) &&
+            (z >= arg.z) )
+            return true;
+        else
+            return false;
+    }
 private:
     Coordinates();
 };

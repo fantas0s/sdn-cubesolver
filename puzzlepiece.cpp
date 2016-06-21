@@ -1,6 +1,11 @@
 #include "puzzlepiece.h"
 #include <QDebug>
 
+PuzzlePiece::PuzzlePiece() :
+    rotations(0)
+{
+}
+
 bool PuzzlePiece::blockFoundAt(const Coordinates location)
 {
     bool blockFound = false;
@@ -33,12 +38,52 @@ int PuzzlePiece::numBlocks()
     return myBlocks.length();
 }
 
-bool PuzzlePiece::noBlockAt(Coordinates location)
-{
-    return !blockFoundAt(location);
-}
-
 QVector<PieceBlock> PuzzlePiece::getBlockList()
 {
     return myBlocks;
+}
+
+void PuzzlePiece::rotate()
+{
+    if( rotations < 4 )
+    {
+        QVector<PieceBlock> newBlockList;
+        QVector<PieceBlock>::iterator i;
+        for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+        {
+            Coordinates curr = i->coords();
+            newBlockList.append(PieceBlock(curr.y, -1*curr.x, curr.z));
+        }
+        myBlocks = newBlockList;
+    }
+    if( (3 == rotations) ||
+        (5 == rotations) )
+    {
+        // 90 degrees around X-axis
+        QVector<PieceBlock> newBlockList;
+        QVector<PieceBlock>::iterator i;
+        for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+        {
+            Coordinates curr = i->coords();
+            newBlockList.append(PieceBlock(curr.x, -1*curr.z, curr.y));
+        }
+        myBlocks = newBlockList;
+    }
+    else if( 4 == rotations)
+    {
+        // 180 degrees around X-axis
+        QVector<PieceBlock> newBlockList;
+        QVector<PieceBlock>::iterator i;
+        for (i = myBlocks.begin(); i != myBlocks.end(); ++i)
+        {
+            Coordinates curr = i->coords();
+            newBlockList.append(PieceBlock(curr.x, -1*curr.y, -1*curr.z));
+        }
+        myBlocks = newBlockList;
+    }
+    rotations++;
+    if( rotations > 5 )
+    {
+        rotations = 0;
+    }
 }

@@ -15,7 +15,9 @@ SOURCES += \
     pieceblock.cpp \
     piecelocationcontainer.cpp \
     puzzlecontainer.cpp \
-    puzzlepiece.cpp
+    puzzlepiece.cpp \
+    printableblock.cpp \
+    printablepiece.cpp
 
 HEADERS += \
     canvasprinter.hpp \
@@ -23,4 +25,6 @@ HEADERS += \
     pieceblock.h \
     piecelocationcontainer.h \
     puzzlecontainer.h \
-    puzzlepiece.h
+    puzzlepiece.h \
+    printableblock.h \
+    printablepiece.h

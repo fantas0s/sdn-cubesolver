@@ -46,37 +46,41 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
 
 bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece> pieces, const int readIndex)
 {
-    PuzzlePiece piece = pieces.at(readIndex);
+    PuzzlePiece* piece = const_cast<PuzzlePiece*>(&pieces.at(readIndex));
     for( int x = 0 ; x < cubeDimension ; ++x )
     {
         for( int y = 0 ; y < cubeDimension ; ++y )
         {
             for( int z = 0; z < cubeDimension ; ++z )
             {
-                if( cube->add(PieceLocationContainer(piece, Coordinates(x,y,z))) )
+                for( int rotations = 0 ; rotations < 6 ; ++rotations )
                 {
-                    // This piece fits. Are we done?
-                    if( readIndex >= (pieces.length()-1) )
+                    if( cube->add(PieceLocationContainer(*piece, Coordinates(x,y,z))) )
                     {
-                        // YES! We're done!
-                        qDebug() << "All" << readIndex+1 << "pieces added!";
-                        return true;
-                    }
-                    else
-                    {
-                        // No, there are more pieces to place to the cube.
-                        if( addPiecesToCubeStartingFromIndex(cube, pieces, readIndex+1) )
+                        // This piece fits. Are we done?
+                        if( readIndex >= (pieces.length()-1) )
                         {
+                            // YES! We're done!
+                            qDebug() << "All" << readIndex+1 << "pieces added!";
                             return true;
                         }
                         else
                         {
-                            // No solution from this setup. Take last piece out and try again.
-                            cube->pop();
+                            // No, there are more pieces to place to the cube.
+                            if( addPiecesToCubeStartingFromIndex(cube, pieces, readIndex+1) )
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                // No solution from this setup. Take last piece out and try again.
+                                cube->pop();
+                            }
                         }
                     }
+                    // did not fit, try again
+                    piece->rotate();
                 }
-                // did not fit, try again
             }
         }
     }

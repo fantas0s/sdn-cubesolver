@@ -1,4 +1,5 @@
 #include "canvasprinter.hpp"
+#include "printablepiece.h"
 
 CanvasPrinter::CanvasPrinter(int containerWidth, int containerHeight, int containerDepth) :
     myWidth(containerWidth),
@@ -66,101 +67,89 @@ QString CanvasPrinter::printEmptyGrid()
     return createCombinedStringForDrawing(&drawArea);
 }
 
-void CanvasPrinter::drawXAxisLines(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawXAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
 {
-    const int realX = curr.x+location.x;
-    const int realY = curr.y+location.y;
-    const int realZ = curr.z+location.z;
     if( piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z+1)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) == piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z)) ) )
     {
-        const int rowOfTopLeftEdge = myDepth-realZ+realX+realY;
-        const int charIndexOfTopLeftEdge = ((myWidth-1)*2)+3-((realX-realY)*2);
-        (*drawArea[rowOfTopLeftEdge])[charIndexOfTopLeftEdge] = '/';
+        const int rowOfTopRightEdge = myDepth-curr.z+curr.x+curr.y;
+        const int charIndexOfTopRightEdge = ((myWidth-1)*2)+3-((curr.x-curr.y)*2);
+        (*drawArea[rowOfTopRightEdge])[charIndexOfTopRightEdge] = '/';
     }
     if( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) &&
-        ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) == piece.noBlockAt(Coordinates(curr.x, curr.y-1, curr.z+1)) ) )
+        ( piece.noBlockAt(Coordinates(curr.x, curr.y-1, curr.z)) == piece.noBlockAt(Coordinates(curr.x, curr.y-1, curr.z+1)) ) )
     {
-        const int rowOfBackLeftEdge = myDepth-realZ+realX+realY-1;
-        const int charIndexOfBackLeftEdge = ((myWidth-1)*2)+1-((realX-realY)*2);
+        const int rowOfBackLeftEdge = myDepth-curr.z+curr.x+curr.y-1;
+        const int charIndexOfBackLeftEdge = ((myWidth-1)*2)+1-((curr.x-curr.y)*2);
         (*drawArea[rowOfBackLeftEdge])[charIndexOfBackLeftEdge] = '/';
     }
     if( piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z-1)) == piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z-1)) ) )
     {
-        const int rowOfBottomleftEdge = myDepth-realZ+realX+realY+1;
-        const int charIndexOfBottomLeftEdge = ((myWidth-1)*2)+3-((realX-realY)*2);
+        const int rowOfBottomleftEdge = myDepth-curr.z+curr.x+curr.y+1;
+        const int charIndexOfBottomLeftEdge = ((myWidth-1)*2)+3-((curr.x-curr.y)*2);
         (*drawArea[rowOfBottomleftEdge])[charIndexOfBottomLeftEdge] = '/';
     }
 }
 
-void CanvasPrinter::drawYAxisLines(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawYAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
 {
-    const int realX = curr.x+location.x;
-    const int realY = curr.y+location.y;
-    const int realZ = curr.z+location.z;
     if( piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z+1)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) == piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z)) ) )
     {
-        const int rowOfTopRightEdge = myDepth-realZ+realX+realY;
-        const int charIndexOfTopRightEdge = ((myWidth-1)*2)+1-((realX-realY)*2);
-        (*drawArea[rowOfTopRightEdge])[charIndexOfTopRightEdge] = '\\';
+        const int rowOfTopLeftEdge = myDepth-curr.z+curr.x+curr.y;
+        const int charIndexOfTopLeftEdge = ((myWidth-1)*2)+1-((curr.x-curr.y)*2);
+        (*drawArea[rowOfTopLeftEdge])[charIndexOfTopLeftEdge] = '\\';
     }
     if( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) &&
-        ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) == piece.noBlockAt(Coordinates(curr.x-1, curr.y, curr.z+1)) ) )
+        ( piece.noBlockAt(Coordinates(curr.x-1, curr.y, curr.z)) == piece.noBlockAt(Coordinates(curr.x-1, curr.y, curr.z+1)) ) )
     {
-        const int rowOfBackRightEdge = myDepth-realZ+realX+realY-1;
-        const int charIndexOfBackRightEdge = ((myWidth-1)*2)+3-((realX-realY)*2);
+        const int rowOfBackRightEdge = myDepth-curr.z+curr.x+curr.y-1;
+        const int charIndexOfBackRightEdge = ((myWidth-1)*2)+3-((curr.x-curr.y)*2);
         (*drawArea[rowOfBackRightEdge])[charIndexOfBackRightEdge] = '\\';
     }
     if( piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z-1)) == piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z-1)) ) )
     {
-        const int rowOfBottomleftEdge = myDepth-realZ+realX+realY+1;
-        const int charIndexOfBottomLeftEdge = ((myWidth-1)*2)+1-((realX-realY)*2);
+        const int rowOfBottomleftEdge = myDepth-curr.z+curr.x+curr.y+1;
+        const int charIndexOfBottomLeftEdge = ((myWidth-1)*2)+1-((curr.x-curr.y)*2);
         (*drawArea[rowOfBottomleftEdge])[charIndexOfBottomLeftEdge] = '\\';
     }
 }
 
-void CanvasPrinter::drawZAxisLines(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawZAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
 {
-    const int realX = curr.x+location.x;
-    const int realY = curr.y+location.y;
-    const int realZ = curr.z+location.z;
     if( piece.noBlockAt(Coordinates(curr.x+1, curr.y+1, curr.z)) &&
         ( piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z)) == piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z)) ) )
     {
-        const int rowOfBlockFront = myDepth-realZ+realX+realY+1;
-        const int charIndexOfBlockFront = ((myWidth-1)*2)+2-((realX-realY)*2);
+        const int rowOfBlockFront = myDepth-curr.z+curr.x+curr.y+1;
+        const int charIndexOfBlockFront = ((myWidth-1)*2)+2-((curr.x-curr.y)*2);
         (*drawArea[rowOfBlockFront])[charIndexOfBlockFront] = '|';
     }
     if( piece.noBlockAt(Coordinates(curr.x+1, curr.y, curr.z)) &&
         ( piece.noBlockAt(Coordinates(curr.x, curr.y-1, curr.z)) || (!piece.noBlockAt(Coordinates(curr.x+1, curr.y-1, curr.z))) ) )
     {
-        const int rowOfBlockLeft = myDepth-realZ+realX+realY;
-        const int charIndexOfBlockLeft = ((myWidth-1)*2)-((realX-realY)*2);
+        const int rowOfBlockLeft = myDepth-curr.z+curr.x+curr.y;
+        const int charIndexOfBlockLeft = ((myWidth-1)*2)-((curr.x-curr.y)*2);
         (*drawArea[rowOfBlockLeft])[charIndexOfBlockLeft] = '|';
     }
     if( piece.noBlockAt(Coordinates(curr.x, curr.y+1, curr.z)) &&
         ( piece.noBlockAt(Coordinates(curr.x-1, curr.y, curr.z)) || (!piece.noBlockAt(Coordinates(curr.x-1, curr.y+1, curr.z))) ) )
     {
-        const int rowOfBlockRight = myDepth-realZ+realX+realY;
-        const int charIndexOfBlockRight = ((myWidth-1)*2)+4-((realX-realY)*2);
+        const int rowOfBlockRight = myDepth-curr.z+curr.x+curr.y;
+        const int charIndexOfBlockRight = ((myWidth-1)*2)+4-((curr.x-curr.y)*2);
         (*drawArea[rowOfBlockRight])[charIndexOfBlockRight] = '|';
     }
 }
 
-void CanvasPrinter::drawBlockTop(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea)
+void CanvasPrinter::drawBlockTop(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea)
 {
-    const int realX = curr.x+location.x;
-    const int realY = curr.y+location.y;
-    const int realZ = curr.z+location.z;
     if( piece.noBlockAt(Coordinates(curr.x, curr.y, curr.z+1)) )
     {
-        const int charIndexOfBlockTop = ((myWidth-1)*2)+2-((realX-realY)*2);
-        int rowOfBlockTop = myDepth-realZ+realX+realY;
+        const int charIndexOfBlockTop = ((myWidth-1)*2)+2-((curr.x-curr.y)*2);
+        int rowOfBlockTop = myDepth-curr.z+curr.x+curr.y;
         (*drawArea[rowOfBlockTop])[charIndexOfBlockTop] = ' ';
-        rowOfBlockTop = myDepth-realZ+realX+realY-1;
+        rowOfBlockTop = myDepth-curr.z+curr.x+curr.y-1;
         (*drawArea[rowOfBlockTop])[charIndexOfBlockTop] = ' ';
     }
 }
@@ -174,18 +163,36 @@ QString CanvasPrinter::printPieceBlocksToCanvas(const QString canvas, PieceLocat
         drawArea.append(new QString(canvas.section('\n',row,row)));
     }
 
-    PuzzlePiece piece = pieceToPrint.piece();
-    Coordinates location = pieceToPrint.location();
-    QVector<PieceBlock> pieceBlocks = piece.getBlockList();
-    for (int blockIndex = 0 ; blockIndex < pieceBlocks.length() ; ++blockIndex )
+    PrintablePiece printablePiece(pieceToPrint);
+    QVector<PrintableBlock> pieceBlocks = printablePiece.getBlockList();
+    bool blocksLeftToPrint;
+    do
     {
-        // Only draw three sides for a cube, rest are hidden.
-        // Do not draw line if block continues to that direction
-        Coordinates curr = pieceBlocks.at(blockIndex).coords();
-        drawXAxisLines(location, piece, curr, drawArea);
-        drawYAxisLines(location, piece, curr, drawArea);
-        drawZAxisLines(location, piece, curr, drawArea);
-        drawBlockTop(location, piece, curr, drawArea);
-    }
+        blocksLeftToPrint= false;
+        Coordinates back(myWidth,myHeight,myDepth);
+        PrintableBlock* blockToPrint = Q_NULLPTR;
+        QVector<PrintableBlock>::iterator i;
+        for (i = pieceBlocks.begin() ; i != pieceBlocks.end() ; ++i )
+        {
+            if( i->notPrinted() )
+            {
+                blocksLeftToPrint = true;
+                Coordinates curr = i->coords();
+                if( back > curr )
+                {
+                    back = curr;
+                    blockToPrint = i;
+                }
+            }
+        }
+        if( blockToPrint )
+        {
+            blockToPrint->setPrinted();
+            drawXAxisLines(printablePiece, back, drawArea);
+            drawYAxisLines(printablePiece, back, drawArea);
+            drawZAxisLines(printablePiece, back, drawArea);
+            drawBlockTop(printablePiece, back, drawArea);
+        }
+    } while( blocksLeftToPrint );
     return createCombinedStringForDrawing(&drawArea);
 }

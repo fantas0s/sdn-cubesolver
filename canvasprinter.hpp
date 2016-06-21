@@ -2,6 +2,8 @@
 #define CANVASPRINTER_HPP
 #include <QString>
 #include "piecelocationcontainer.h"
+#include "printablepiece.h"
+
 class CanvasPrinter
 {
 public:
@@ -14,10 +16,10 @@ private:
     int myHeight;
     int myDepth;
     QString createCombinedStringForDrawing(QVector<QString*> *drawArea);
-    void drawXAxisLines(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea);
-    void drawYAxisLines(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea);
-    void drawZAxisLines(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea);
-    void drawBlockTop(Coordinates location, PuzzlePiece piece, Coordinates curr, QVector<QString*> drawArea);
+    void drawXAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
+    void drawYAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
+    void drawZAxisLines(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
+    void drawBlockTop(PrintablePiece piece, Coordinates curr, QVector<QString*> drawArea);
 };
 
 #endif // CANVASPRINTER_HPP
