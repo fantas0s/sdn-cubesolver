@@ -53,6 +53,13 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
         {
             for( int z = 0; z < cubeDimension ; ++z )
             {
+                if( 0 == readIndex)
+                {
+                    const float max = cubeDimension*cubeDimension*cubeDimension;
+                    const float current = x*cubeDimension*cubeDimension + y*cubeDimension + z;
+                    const float percentage = (current/max)*100;
+                    std::cout << "At " << percentage << " percent...\n";
+                }
                 for( int rotations = 0 ; rotations < 6 ; ++rotations )
                 {
                     if( cube->add(PieceLocationContainer(*piece, Coordinates(x,y,z))) )
