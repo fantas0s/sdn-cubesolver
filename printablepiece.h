@@ -2,6 +2,7 @@
 #define PRINTABLEPIECE_H
 #include "piecelocationcontainer.h"
 #include "printableblock.h"
+#include <QVector>
 
 class PrintablePiece
 {

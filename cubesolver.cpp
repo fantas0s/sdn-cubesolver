@@ -7,10 +7,11 @@
 const int cubeDimension = 4;
 const float maxPositions = cubeDimension*cubeDimension*cubeDimension*6;
 int64_t progress = 0;
+static PuzzlePiece allPieces[NUM_PIECES];
 
-QVector<PuzzlePiece> createAllPieces()
+void createAllPieces()
 {
-    QVector<PuzzlePiece> container;
+    int index = 0;
     //orange Plus
     PuzzlePiece piece;
     piece.addBlock(PieceBlock(1,0,0));
@@ -18,7 +19,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(2,1,0));
     piece.addBlock(PieceBlock(1,2,0));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     //orange double-L
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -26,7 +28,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,0,1));
     piece.addBlock(PieceBlock(0,0,2));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     //orange jigsaw with up-part at end
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -34,7 +37,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(2,1,0));
     piece.addBlock(PieceBlock(2,1,1));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     //orange jigsaw with up-part before the end
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -42,7 +46,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(2,1,0));
     piece.addBlock(PieceBlock(1,1,1));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // black cloth hanger
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -50,7 +55,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(2,0,0));
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(1,1,1));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // black T-like with end knob in level with rest of it
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -58,7 +64,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(2,0,0));
     piece.addBlock(PieceBlock(1,1,0));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // black T-like with end knob up
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -66,7 +73,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(2,0,0));
     piece.addBlock(PieceBlock(1,1,0));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // black zigzag
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -74,7 +82,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(1,1,1));
     piece.addBlock(PieceBlock(2,1,1));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // blue 3D'ish L
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -82,7 +91,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(2,0,0));
     piece.addBlock(PieceBlock(0,1,0));
     piece.addBlock(PieceBlock(0,1,1));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // blue double-L
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -90,7 +100,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(2,0,0));
     piece.addBlock(PieceBlock(2,1,0));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // blue flat zigzag
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -98,7 +109,8 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(2,1,0));
     piece.addBlock(PieceBlock(2,2,0));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // blue 3D tetris piece
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -106,15 +118,17 @@ QVector<PuzzlePiece> createAllPieces()
     piece.addBlock(PieceBlock(2,0,0));
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(1,0,1));
-    container.append(piece);
+    allPieces[index] = piece;
+    index++;
     // blue little L
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(1,1,1));
-    container.append(piece);
-    return container;
+    allPieces[index] = piece;
+    index++;
+    Q_ASSERT(index == NUM_PIECES);
 }
 
 static int progressTable[NUM_PIECES] = {0};
@@ -136,16 +150,15 @@ void printProgress()
     std::cout << "/9999999999999\n";
 }
 
-bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece> pieces, const int readIndex);
+bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex);
 
-bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece> pieces, const int readIndex)
+bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex)
 {
     progress++;
     if( 0 == (progress & 0x00000fff) )
     {
         printProgress();
     }
-    PuzzlePiece* piece = const_cast<PuzzlePiece*>(&pieces.at(readIndex));
     for( int x = 0 ; x < cubeDimension ; ++x )
     {
         for( int y = 0 ; y < cubeDimension ; ++y )
@@ -155,10 +168,11 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
                 for( int rotations = 0 ; rotations < 6 ; ++rotations )
                 {
                     progressTable[readIndex] = createTenPercentProgressValue(x, y, z, rotations);
-                    if( cube->add(PieceLocationContainer(*piece, Coordinates(x,y,z))) )
+                    Coordinates currentPos(x,y,z);
+                    if( cube->add(PieceLocationContainer(&(allPieces[readIndex]), &currentPos)) )
                     {
-                        // This piece fits. Are we done?
-                        if( readIndex >= (pieces.length()-1) )
+                        // This piece fits. Was it the last one?
+                        if( (readIndex+1) >= NUM_PIECES )
                         {
                             // YES! We're done!
                             qDebug() << "All" << readIndex+1 << "pieces added!";
@@ -167,7 +181,7 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
                         else
                         {
                             // No, there are more pieces to place to the cube.
-                            if( addPiecesToCubeStartingFromIndex(cube, pieces, readIndex+1) )
+                            if( addPiecesToCubeStartingFromIndex(cube, readIndex+1) )
                             {
                                 return true;
                             }
@@ -179,7 +193,7 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
                         }
                     }
                     // did not fit, try again
-                    piece->rotate();
+                   allPieces[readIndex].rotate();
                 }
             }
         }
@@ -191,13 +205,14 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, QVector<PuzzlePiece
 int main(int argc, char *argv[])
 {
     /* Approximate time to try ALL combinations:
-     * Unoptimized code: 90 * 90 * 90 * 400 seconds = 3375 days...
-     * Use of vectors removed from class PuzzlePiece: 90 * 90 * 90 * 100 seconds = 843 days...
+     * Unoptimized code:                                   90 * 90 * 90 * 400 seconds = 3375 days...
+     * Use of vectors removed from class PuzzlePiece:      90 * 90 * 90 * 100 seconds = 843 days...
+     * Added passing of const pointers instead of objects: 90 * 90 * 90 * 64  seconds = 540 days...
+     * Use of QVector removed from this file:              90 * 90 * 90 * 64  seconds = 540 days...
      */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
-    QVector<PuzzlePiece> pieces = createAllPieces();
-    Q_ASSERT( pieces.length() == NUM_PIECES );
-    if( addPiecesToCubeStartingFromIndex(&cube, pieces, 0) )
+    createAllPieces();
+    if( addPiecesToCubeStartingFromIndex(&cube, 0) )
     {
         std::cout << cube.printSteps().toStdString();
     }

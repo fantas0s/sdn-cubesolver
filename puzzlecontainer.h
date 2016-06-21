@@ -1,6 +1,8 @@
 #ifndef PUZZLECONTAINER_H
 #define PUZZLECONTAINER_H
 #include "piecelocationcontainer.h"
+#include <Qvector>
+#include <QString>
 
 class PuzzleContainer
 {

@@ -1,7 +1,6 @@
 #ifndef PUZZLEPIECE_H
 #define PUZZLEPIECE_H
 #include "pieceblock.h"
-#include <QVector>
 #define MAX_BLOCKS 5
 
 class PuzzlePiece

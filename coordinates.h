@@ -1,6 +1,5 @@
 #ifndef COORDINATES_H
 #define COORDINATES_H
-#include <QDebug>
 class Coordinates
 {
 public:
