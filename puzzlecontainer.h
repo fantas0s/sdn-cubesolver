@@ -14,11 +14,16 @@ public:
     QString printSteps();
 private:
     PuzzleContainer();
-    int* renderPiecesToGrid();
+    const int* getGrid();
+    void addToGrid(PieceLocationContainer *pieceAndLocation);
+    void removeFromGrid(PieceLocationContainer *pieceAndLocation);
+    bool gridHasOverlaps();
     QVector<PieceLocationContainer> piecesInContainer;
     int myWidth;
     int myHeight;
     int myDepth;
+    int gridLength;
+    int* grid;
 };
 
 #endif // PUZZLECONTAINER_H

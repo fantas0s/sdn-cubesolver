@@ -1,44 +1,56 @@
 #include "puzzlecontainer.h"
 #include "canvasprinter.hpp"
 
+#define INDEX_IN_GRID(x,y,z)   (((z)*myDepth*myHeight)+((y)*myHeight)+(x))
+
 PuzzleContainer::PuzzleContainer(int width, int height, int depth) :
     myWidth(width),
     myHeight(height),
-    myDepth(depth)
+    myDepth(depth),
+    gridLength(width*height*depth)
 {
+    int sizeOfGrid = width*height*depth*sizeof(int);
+    grid = (int*)malloc(sizeOfGrid);
+    memset(grid, 0, sizeOfGrid);
 }
 
-int* PuzzleContainer::renderPiecesToGrid()
+const int* PuzzleContainer::getGrid()
 {
-    int *returnValue = (int*)malloc(myWidth*myHeight*myDepth*sizeof(int));
-    int grid[myWidth][myHeight][myDepth];
-    for( int z = 0 ; z < myDepth ; z++ )
-    {
-        for( int y = 0 ; y < myHeight ; y++ )
-        {
-            for( int x = 0 ; x < myWidth ; x++ )
-            {
-                grid[x][y][z] = 0;
-            }
-        }
-    }
+    return grid;
+}
 
-    QVector<PieceLocationContainer>::iterator containerIterator;
-    for( containerIterator = piecesInContainer.begin() ; containerIterator != piecesInContainer.end() ; ++containerIterator )
+void PuzzleContainer::addToGrid(PieceLocationContainer *pieceAndLocation)
+{
+    const PuzzlePiece *piece = pieceAndLocation->piece();
+    const Coordinates *location = pieceAndLocation->location();
+    const PieceBlock *pieceBlocks = piece->getBlockList();
+    for (int i = 0 ; i < piece->numBlocks() ; ++i )
     {
-        const PuzzlePiece *piece = (*containerIterator).piece();
-        const Coordinates *location = (*containerIterator).location();
-        const PieceBlock *pieceBlocks = piece->getBlockList();
-        for (int i = 0 ; i < piece->numBlocks() ; ++i )
-        {
-            const Coordinates *curr = pieceBlocks[i].coords();
-            grid[curr->x + location->x]
-                [curr->y + location->y]
-                [curr->z + location->z] += 1;
-        }
+        const Coordinates *curr = pieceBlocks[i].coords();
+        grid[INDEX_IN_GRID(curr->x + location->x, curr->y + location->y, curr->z + location->z)] += 1;
     }
-    memcpy(returnValue, grid, sizeof(grid));
-    return returnValue;
+}
+
+void PuzzleContainer::removeFromGrid(PieceLocationContainer *pieceAndLocation)
+{
+    const PuzzlePiece *piece = pieceAndLocation->piece();
+    const Coordinates *location = pieceAndLocation->location();
+    const PieceBlock *pieceBlocks = piece->getBlockList();
+    for (int i = 0 ; i < piece->numBlocks() ; ++i )
+    {
+        const Coordinates *curr = pieceBlocks[i].coords();
+        grid[INDEX_IN_GRID(curr->x + location->x, curr->y + location->y, curr->z + location->z)] -= 1;
+    }
+}
+
+bool PuzzleContainer::gridHasOverlaps()
+{
+    for( int index = 0 ; index < gridLength ; ++index )
+    {
+        if( grid[index] > 1 )
+            return true;
+    }
+    return false;
 }
 
 bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
@@ -63,26 +75,15 @@ bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
     }
     if( false == doesNotFit )
     {
-        piecesInContainer.append(pieceAndLocation);
-        int grid[myWidth][myHeight][myDepth];
-        int* gridPtr = renderPiecesToGrid();
-        memcpy(grid, gridPtr, sizeof(grid));
-        for( int z = 0 ; z < myDepth ; z++ )
-        {
-            for( int y = 0 ; y < myHeight ; y++ )
-            {
-                for( int x = 0 ; x < myWidth ; x++ )
-                {
-                    if(grid[x][y][z] > 1)
-                    {
-                        doesNotFit = true;
-                    }
-                }
-            }
-        }
+        addToGrid(&pieceAndLocation);
+        doesNotFit = gridHasOverlaps();
         if( doesNotFit )
         {
-            piecesInContainer.removeLast();
+            removeFromGrid(&pieceAndLocation);
+        }
+        else
+        {
+            piecesInContainer.append(pieceAndLocation);
         }
     }
 
@@ -91,6 +92,7 @@ bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
 
 void PuzzleContainer::pop()
 {
+    removeFromGrid(&piecesInContainer.last());
     piecesInContainer.removeLast();
 }
 
