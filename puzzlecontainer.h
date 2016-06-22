@@ -9,16 +9,16 @@ class PuzzleContainer
     friend class SDNCubeSolverTest;
 public:
     PuzzleContainer(int width, int height, int depth);
-    bool add(PieceLocationContainer pieceAndLocation);
+    bool add(const PieceLocationContainer* pieceAndLocation);
     void pop();
     QString printSteps();
 private:
     PuzzleContainer();
     const int* getGrid();
-    void addToGrid(PieceLocationContainer *pieceAndLocation);
-    void removeFromGrid(PieceLocationContainer *pieceAndLocation);
+    void addToGrid(const PieceLocationContainer *pieceAndLocation);
+    void removeFromGrid(const PieceLocationContainer *pieceAndLocation);
     bool gridHasOverlaps();
-    QVector<PieceLocationContainer> piecesInContainer;
+    QVector<const PieceLocationContainer*> piecesInContainer;
     int myWidth;
     int myHeight;
     int myDepth;

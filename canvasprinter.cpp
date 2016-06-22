@@ -154,7 +154,7 @@ void CanvasPrinter::drawBlockTop(PrintablePiece piece, const Coordinates curr, Q
     }
 }
 
-QString CanvasPrinter::printPieceBlocksToCanvas(const QString canvas, PieceLocationContainer pieceToPrint)
+QString CanvasPrinter::printPieceBlocksToCanvas(const QString canvas, const PieceLocationContainer *pieceToPrint)
 {
     int rowsToDraw = myWidth + myHeight + myDepth;
     QVector<QString*> drawArea;

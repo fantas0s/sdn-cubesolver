@@ -2,18 +2,19 @@
 #define PIECELOCATIONCONTAINER_H
 #include "puzzlepiece.h"
 #include "coordinates.h"
+#include <QObject>
 
 class PieceLocationContainer
 {
 public:
     PieceLocationContainer(const PuzzlePiece *piece, const Coordinates *location);
     PieceLocationContainer() :
-        myLocation(0,0,0){}
-    const PuzzlePiece *piece();
-    const Coordinates *location();
+        myLocation(Q_NULLPTR){}
+    const PuzzlePiece *piece() const;
+    const Coordinates *location() const;
 private:
-    PuzzlePiece myPiece;
-    Coordinates myLocation;
+    const PuzzlePiece* myPiece;
+    const Coordinates* myLocation;
 };
 
 #endif // PIECELOCATIONCONTAINER_H

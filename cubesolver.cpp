@@ -8,6 +8,8 @@ const int cubeDimension = 4;
 const float maxPositions = cubeDimension*cubeDimension*cubeDimension*6;
 int64_t progress = 0;
 static PuzzlePiece allPieces[NUM_PIECES];
+static Coordinates positions[NUM_PIECES];
+static PieceLocationContainer containers[NUM_PIECES];
 
 void createAllPieces()
 {
@@ -159,17 +161,20 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
     {
         printProgress();
     }
+    Coordinates *currentPos = &(positions[readIndex]);
     for( int x = 0 ; x < cubeDimension ; ++x )
     {
+        currentPos->x = x;
         for( int y = 0 ; y < cubeDimension ; ++y )
         {
+            currentPos->y = y;
             for( int z = 0; z < cubeDimension ; ++z )
             {
+                currentPos->z = z;
                 for( int rotations = 0 ; rotations < 6 ; ++rotations )
                 {
                     progressTable[readIndex] = createTenPercentProgressValue(x, y, z, rotations);
-                    Coordinates currentPos(x,y,z);
-                    if( cube->add(PieceLocationContainer(&(allPieces[readIndex]), &currentPos)) )
+                    if( cube->add(&(containers[readIndex])) )
                     {
                         // This piece fits. Was it the last one?
                         if( (readIndex+1) >= NUM_PIECES )
@@ -207,16 +212,22 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
     /* Approximate time to try ALL combinations:
-     * Unoptimized code:                                   90 * 90 * 90 * 400 seconds = 3375 days...
-     * Use of vectors removed from class PuzzlePiece:      90 * 90 * 90 * 100 seconds = 843 days...
-     * Added passing of const pointers instead of objects: 90 * 90 * 90 * 64  seconds = 540 days...
-     * Use of QVector removed from this file:              90 * 90 * 90 * 64  seconds = 540 days...
-     * No more dynamic allocs in grid handling:            90 * 90 * 90 * 24  seconds = 202 days...
+     * Unoptimized code:                                       90 * 90 * 90 * 400 seconds = 3375 days...
+     * Use of vectors removed from class PuzzlePiece:          90 * 90 * 90 * 100 seconds = 843 days...
+     * Added passing of const pointers instead of objects:     90 * 90 * 90 * 64  seconds = 540 days...
+     * Use of QVector removed from this file:                  90 * 90 * 90 * 64  seconds = 540 days...
+     * No more dynamic allocs in grid handling:                90 * 90 * 90 * 24  seconds = 202 days...
+     * using pointers instead of objects in container vector:  90 * 90 * 90 * 24  seconds = 202 days...
      */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
     createAllPieces();
+    for( int index = 0 ; index < NUM_PIECES ; ++index )
+    {
+        containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
+    }
     if( addPiecesToCubeStartingFromIndex(&cube, 0) )
     {
+        qDebug() << "printing Steps";
         std::cout << cube.printSteps().toStdString();
     }
     else

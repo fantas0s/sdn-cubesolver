@@ -9,7 +9,7 @@ class CanvasPrinter
 public:
     CanvasPrinter(int containerWidth, int containerHeight, int containerDepth);
     QString printEmptyGrid();
-    QString printPieceBlocksToCanvas(const QString canvas, PieceLocationContainer pieceToPrint);
+    QString printPieceBlocksToCanvas(const QString canvas, const PieceLocationContainer *pieceToPrint);
 private:
     CanvasPrinter();
     int myWidth;

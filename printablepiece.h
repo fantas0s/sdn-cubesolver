@@ -7,7 +7,7 @@
 class PrintablePiece
 {
 public:
-    PrintablePiece(PieceLocationContainer origin);
+    PrintablePiece(const PieceLocationContainer *origin);
     QVector<PrintableBlock> getBlockList();
     bool noBlockAt(Coordinates location);
 private:

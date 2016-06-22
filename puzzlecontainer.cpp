@@ -19,7 +19,7 @@ const int* PuzzleContainer::getGrid()
     return grid;
 }
 
-void PuzzleContainer::addToGrid(PieceLocationContainer *pieceAndLocation)
+void PuzzleContainer::addToGrid(const PieceLocationContainer *pieceAndLocation)
 {
     const PuzzlePiece *piece = pieceAndLocation->piece();
     const Coordinates *location = pieceAndLocation->location();
@@ -31,7 +31,7 @@ void PuzzleContainer::addToGrid(PieceLocationContainer *pieceAndLocation)
     }
 }
 
-void PuzzleContainer::removeFromGrid(PieceLocationContainer *pieceAndLocation)
+void PuzzleContainer::removeFromGrid(const PieceLocationContainer *pieceAndLocation)
 {
     const PuzzlePiece *piece = pieceAndLocation->piece();
     const Coordinates *location = pieceAndLocation->location();
@@ -53,10 +53,10 @@ bool PuzzleContainer::gridHasOverlaps()
     return false;
 }
 
-bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
+bool PuzzleContainer::add(const PieceLocationContainer *pieceAndLocation)
 {
-    const PuzzlePiece *piece = pieceAndLocation.piece();
-    const Coordinates *location = pieceAndLocation.location();
+    const PuzzlePiece *piece = pieceAndLocation->piece();
+    const Coordinates *location = pieceAndLocation->location();
     bool doesNotFit = false;
     const PieceBlock *pieceBlocks = piece->getBlockList();
     for (int i = 0 ; i < piece->numBlocks() ; ++i )
@@ -75,11 +75,11 @@ bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
     }
     if( false == doesNotFit )
     {
-        addToGrid(&pieceAndLocation);
+        addToGrid(pieceAndLocation);
         doesNotFit = gridHasOverlaps();
         if( doesNotFit )
         {
-            removeFromGrid(&pieceAndLocation);
+            removeFromGrid(pieceAndLocation);
         }
         else
         {
@@ -92,7 +92,7 @@ bool PuzzleContainer::add(PieceLocationContainer pieceAndLocation)
 
 void PuzzleContainer::pop()
 {
-    removeFromGrid(&piecesInContainer.last());
+    removeFromGrid(piecesInContainer.last());
     piecesInContainer.removeLast();
 }
 
@@ -102,7 +102,7 @@ QString PuzzleContainer::printSteps()
     const QString emptyGridString = printer.printEmptyGrid();
     QString returnString = QString(emptyGridString);
 
-    QVector<PieceLocationContainer>::iterator containerIterator;
+    QVector<const PieceLocationContainer*>::iterator containerIterator;
     for( containerIterator = piecesInContainer.begin() ; containerIterator != piecesInContainer.end() ; ++containerIterator )
     {
         returnString += "\n";

@@ -1,13 +1,13 @@
 #include "printablepiece.h"
 
-PrintablePiece::PrintablePiece(PieceLocationContainer origin)
+PrintablePiece::PrintablePiece(const PieceLocationContainer *origin)
 {
-    const PieceBlock* blockList = origin.piece()->getBlockList();
-    for (int i = 0 ; i < origin.piece()->numBlocks() ; ++i )
+    const PieceBlock* blockList = origin->piece()->getBlockList();
+    for (int i = 0 ; i < origin->piece()->numBlocks() ; ++i )
     {
-        addBlock(PieceBlock(blockList[i].coords()->x + origin.location()->x,
-                            blockList[i].coords()->y + origin.location()->y,
-                            blockList[i].coords()->z + origin.location()->z));
+        addBlock(PieceBlock(blockList[i].coords()->x + origin->location()->x,
+                            blockList[i].coords()->y + origin->location()->y,
+                            blockList[i].coords()->z + origin->location()->z));
     }
 }
 

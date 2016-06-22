@@ -1,17 +1,17 @@
 #include "piecelocationcontainer.h"
 
-PieceLocationContainer::PieceLocationContainer(const PuzzlePiece *piece, const Coordinates *location) :
-    myLocation(location->x, location->y, location->z)
+PieceLocationContainer::PieceLocationContainer(const PuzzlePiece *piece, const Coordinates *location)
 {
-    myPiece = *piece;
+    myLocation = location;
+    myPiece = piece;
 }
 
-const PuzzlePiece *PieceLocationContainer::piece()
+const PuzzlePiece *PieceLocationContainer::piece() const
 {
-    return &myPiece;
+    return myPiece;
 }
 
-const Coordinates *PieceLocationContainer::location()
+const Coordinates *PieceLocationContainer::location() const
 {
-    return &myLocation;
+    return myLocation;
 }
