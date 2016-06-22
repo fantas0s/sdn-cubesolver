@@ -2,14 +2,18 @@
 #include "puzzlecontainer.h"
 #include <QDebug>
 #include <stdint.h>
+#include <QDateTime>
 #define NUM_PIECES 13
 
 const int cubeDimension = 4;
-const float maxPositions = cubeDimension*cubeDimension*cubeDimension*6;
 int64_t progress = 0;
+int level0iterations = 0;
+int level1iterations = 0;
+const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*6;
 static PuzzlePiece allPieces[NUM_PIECES];
 static Coordinates positions[NUM_PIECES];
 static PieceLocationContainer containers[NUM_PIECES];
+static QDateTime startTime;
 
 void createAllPieces()
 {
@@ -21,6 +25,24 @@ void createAllPieces()
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(2,1,0));
     piece.addBlock(PieceBlock(1,2,0));
+    allPieces[index] = piece;
+    index++;
+    // blue 3D tetris piece
+    piece = PuzzlePiece();
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(1,0,0));
+    piece.addBlock(PieceBlock(2,0,0));
+    piece.addBlock(PieceBlock(1,1,0));
+    piece.addBlock(PieceBlock(1,0,1));
+    allPieces[index] = piece;
+    index++;
+    // black cloth hanger
+    piece = PuzzlePiece();
+    piece.addBlock(PieceBlock(0,0,0));
+    piece.addBlock(PieceBlock(1,0,0));
+    piece.addBlock(PieceBlock(2,0,0));
+    piece.addBlock(PieceBlock(1,1,0));
+    piece.addBlock(PieceBlock(1,1,1));
     allPieces[index] = piece;
     index++;
     //orange double-L
@@ -47,15 +69,6 @@ void createAllPieces()
     piece.addBlock(PieceBlock(1,0,0));
     piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(2,1,0));
-    piece.addBlock(PieceBlock(1,1,1));
-    allPieces[index] = piece;
-    index++;
-    // black cloth hanger
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
     piece.addBlock(PieceBlock(1,1,1));
     allPieces[index] = piece;
     index++;
@@ -113,15 +126,6 @@ void createAllPieces()
     piece.addBlock(PieceBlock(2,2,0));
     allPieces[index] = piece;
     index++;
-    // blue 3D tetris piece
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(1,0,1));
-    allPieces[index] = piece;
-    index++;
     // blue little L
     piece = PuzzlePiece();
     piece.addBlock(PieceBlock(0,0,0));
@@ -133,33 +137,21 @@ void createAllPieces()
     Q_ASSERT(index == NUM_PIECES);
 }
 
-static int progressTable[NUM_PIECES] = {0};
-
-int createTenPercentProgressValue(int x, int y, int z, int rotations)
-{
-    float current = (x*cubeDimension*cubeDimension*6)+(y*cubeDimension*6)+(z*6)+rotations;
-    float tenPercentage = ((current * 10)-1) / maxPositions;
-    return (int)tenPercentage;
-}
-
-void printProgress()
-{
-    std::cout << "Progress at ";
-    for( int index = 0 ; index < NUM_PIECES ; index++ )
-    {
-        std::cout << progressTable[index];
-    }
-    std::cout << "/9999999999999\n";
-}
-
 bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex);
 
 bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex)
 {
     progress++;
-    if( 0 == (progress & 0x00000fff) )
+    if( readIndex==1 )
     {
-        printProgress();
+        level1iterations = 0;
+    }
+    if( 0 == (progress & ((int64_t)0xffff)) )
+    {
+        qint64 msecs = startTime.msecsTo(QDateTime::currentDateTime());
+        qint64 secs = msecs/1000;
+        std::cout << "Progressing " << progress << " (" << level0iterations << "/2)"
+                  << " (" << level1iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
     }
     Coordinates *currentPos = &(positions[readIndex]);
     for( int x = 0 ; x < cubeDimension ; ++x )
@@ -173,7 +165,10 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
                 currentPos->z = z;
                 for( int rotations = 0 ; rotations < 6 ; ++rotations )
                 {
-                    progressTable[readIndex] = createTenPercentProgressValue(x, y, z, rotations);
+                    if( readIndex==1 )
+                    {
+                        level1iterations++;
+                    }
                     if( cube->add(&(containers[readIndex])) )
                     {
                         // This piece fits. Was it the last one?
@@ -207,6 +202,56 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
     return false;
 }
 
+bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
+{
+    Coordinates *currentPos = &(positions[0]);
+#ifndef FULL_MODE
+    currentPos->x = 0;
+    currentPos->y = 0;
+    for( int z = 0 ; z < 2 ; ++z )
+#else
+    for( int x = 0 ; x < cubeDimension ; ++x )
+    {
+        currentPos->x = x;
+        for( int y = 0 ; y < cubeDimension ; ++y )
+        {
+            currentPos->y = y;
+            for( int z = 0; z < cubeDimension ; ++z )
+#endif
+            {
+                currentPos->z = z;
+#ifdef FULL_MODE
+                for( int rotations = 0 ; rotations < 6 ; ++rotations )
+                {
+#endif
+                    level0iterations++;
+                    if( cube->add(&(containers[0])) )
+                    {
+                        // This piece fits. Add more pieces to the cube.
+                        if( addPiecesToCubeStartingFromIndex(cube, 1) )
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            // No solution from this setup. Take our piece out and try again.
+                            cube->pop();
+                        }
+                    }
+#ifdef FULL_MODE
+                    // did not fit, try again
+                   allPieces[0].rotate();
+                }
+#endif
+            }
+#ifdef FULL_MODE
+        }
+    }
+#endif
+    // No solution found
+    return false;
+}
+
 int main(int argc, char *argv[])
 {
     (void)argc;
@@ -219,6 +264,9 @@ int main(int argc, char *argv[])
      * No more dynamic allocs in grid handling:                90 * 90 * 90 * 24  seconds = 202 days...
      * using pointers instead of objects in container vector:  90 * 90 * 90 * 24  seconds = 202 days...
      * using pointers instead of objects in this file:         90 * 90 * 90 * 16  seconds = 135 days...
+     * removed floating point operations from this file:       64 * 64 * 84 seconds = 4 days!
+     *
+     * Also: only two positions of first piece are needed, which means proper time should be 2 * 64 * 84 seconds = 3 hours.
      */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
     createAllPieces();
@@ -226,7 +274,8 @@ int main(int argc, char *argv[])
     {
         containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
     }
-    if( addPiecesToCubeStartingFromIndex(&cube, 0) )
+    startTime = QDateTime::currentDateTime();
+    if( addLevel0PieceToCubeAndContinue(&cube) )
     {
         qDebug() << "printing Steps";
         std::cout << cube.printSteps().toStdString();
