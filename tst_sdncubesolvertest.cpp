@@ -6,6 +6,7 @@
 #include <iostream>
 #include "printableblock.h"
 #include "printablepiece.h"
+#include "piececreator.h"
 
 class SDNCubeSolverTest : public QObject
 {
@@ -31,6 +32,7 @@ private Q_SLOTS:
     void printPieceBlocksToCanvas();
     void printPlusPiece();
     void printSteps();
+    void addAllButOnePieceToCube();
 };
 
 SDNCubeSolverTest::SDNCubeSolverTest()
@@ -450,6 +452,94 @@ void SDNCubeSolverTest::printSteps()
     instructions = cube.printSteps();
     expected = expectedEmpty+"\n"+expectedFirstPiece+"\n"+expectedSecondPiece;
     QCOMPARE(instructions, expected);
+}
+
+void SDNCubeSolverTest::addAllButOnePieceToCube()
+{
+    PuzzleContainer cube(4,4,4);
+    PuzzlePiece pieces[12];
+    Coordinates locations[12];
+    PieceLocationContainer containers[12];
+    for( int containerIndex = 0 ; containerIndex < 12 ; containerIndex++ )
+    {
+        containers[containerIndex] = PieceLocationContainer(&(pieces[containerIndex]), &(locations[containerIndex]));
+    }
+    int index = 0;
+    PieceCreator::createPieceOrangePlus(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlue3DTetris(&(pieces[index]));
+    pieces[index].rotate();
+    pieces[index].rotate();
+    pieces[index].rotate();
+    locations[index].x = 3;
+    locations[index].y = 0;
+    locations[index].z = 1;
+    QVERIFY(cube.add(&(containers[index])));
+/*    index++;
+    PieceCreator::createPieceBlackClothHanger(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceOrangeDoubleL(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceOrangeJigsawUp1(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceOrangeJigsawUp2(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlackLeveledT(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlackKnobUpT(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlackZigZag(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlue3DL(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlueDoubleL(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;
+    PieceCreator::createPieceBlueFlatZigZag(&(pieces[index]));
+    locations[index].x = 0;
+    locations[index].y = 0;
+    locations[index].z = 0;
+    QVERIFY(cube.add(&(containers[index])));
+    index++;*/
 }
 
 QTEST_APPLESS_MAIN(SDNCubeSolverTest)
