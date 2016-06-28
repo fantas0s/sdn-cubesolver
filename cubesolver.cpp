@@ -1,5 +1,6 @@
 #include <iostream>
 #include "puzzlecontainer.h"
+#include "piececreator.h"
 #include <QDebug>
 #include <stdint.h>
 #include <QDateTime>
@@ -18,121 +19,31 @@ static QDateTime startTime;
 void createAllPieces()
 {
     int index = 0;
-    //orange Plus
-    PuzzlePiece piece;
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(0,1,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(2,1,0));
-    piece.addBlock(PieceBlock(1,2,0));
-    allPieces[index] = piece;
+    PieceCreator::createPieceOrangePlus(&(allPieces[index]));
     index++;
-    // blue 3D tetris piece
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(1,0,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlue3DTetris(&(allPieces[index]));
     index++;
-    // black cloth hanger
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(1,1,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlackClothHanger(&(allPieces[index]));
     index++;
-    //orange double-L
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(0,1,0));
-    piece.addBlock(PieceBlock(0,0,1));
-    piece.addBlock(PieceBlock(0,0,2));
-    allPieces[index] = piece;
+    PieceCreator::createPieceOrangeDoubleL(&(allPieces[index]));
     index++;
-    //orange jigsaw with up-part at end
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(2,1,0));
-    piece.addBlock(PieceBlock(2,1,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceOrangeJigsawUp1(&(allPieces[index]));
     index++;
-    //orange jigsaw with up-part before the end
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(2,1,0));
-    piece.addBlock(PieceBlock(1,1,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceOrangeJigsawUp2(&(allPieces[index]));
     index++;
-    // black T-like with end knob in level with rest of it
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(0,-1,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlackLeveledT(&(allPieces[index]));
     index++;
-    // black T-like with end knob up
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(0,0,1));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlackKnobUpT(&(allPieces[index]));
     index++;
-    // black zigzag
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(1,1,1));
-    piece.addBlock(PieceBlock(2,1,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlackZigZag(&(allPieces[index]));
     index++;
-    // blue 3D'ish L
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(0,1,0));
-    piece.addBlock(PieceBlock(0,1,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlue3DL(&(allPieces[index]));
     index++;
-    // blue double-L
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(0,0,1));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(2,0,0));
-    piece.addBlock(PieceBlock(2,1,0));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlueDoubleL(&(allPieces[index]));
     index++;
-    // blue flat zigzag
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(2,1,0));
-    piece.addBlock(PieceBlock(2,2,0));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlueFlatZigZag(&(allPieces[index]));
     index++;
-    // blue little L
-    piece = PuzzlePiece();
-    piece.addBlock(PieceBlock(0,0,0));
-    piece.addBlock(PieceBlock(1,0,0));
-    piece.addBlock(PieceBlock(1,1,0));
-    piece.addBlock(PieceBlock(1,1,1));
-    allPieces[index] = piece;
+    PieceCreator::createPieceBlueLittleL(&(allPieces[index]));
     index++;
     Q_ASSERT(index == NUM_PIECES);
 }
