@@ -1,7 +1,7 @@
 #ifndef PUZZLEPIECE_H
 #define PUZZLEPIECE_H
 #include "pieceblock.h"
-#define MAX_BLOCKS 5
+#define MAX_BLOCKS 7
 
 class PuzzlePiece
 {
@@ -16,7 +16,9 @@ private:
     PieceBlock myBlocks[MAX_BLOCKS];
     int myBlockCount;
     bool blockFoundAt(const Coordinates location);
-    int rotations;
+    int xRotations;
+    int yRotations;
+    int zRotations;
 };
 
 #endif // PUZZLEPIECE_H
