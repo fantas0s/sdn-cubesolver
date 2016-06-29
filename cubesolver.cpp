@@ -7,10 +7,16 @@
 #define NUM_PIECES 13
 
 const int cubeDimension = 4;
+const int maxRotations = 10;
 int64_t progress = 0;
 int level0iterations = 0;
 int level1iterations = 0;
-const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*6;
+const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*maxRotations;
+#ifdef FULL_MODE
+const int level0iterationsMax = iterationsMax;
+#else
+const int level0iterationsMax = 2;
+#endif
 static PuzzlePiece allPieces[NUM_PIECES];
 static Coordinates positions[NUM_PIECES];
 static PieceLocationContainer containers[NUM_PIECES];
@@ -61,21 +67,21 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
     {
         qint64 msecs = startTime.msecsTo(QDateTime::currentDateTime());
         qint64 secs = msecs/1000;
-        std::cout << "Progressing " << progress << " (" << level0iterations << "/2)"
-                  << " (" << level1iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
+        std::cout << "Progressing " << progress << " (" << level0iterations << "/" << level0iterationsMax
+                  << ") (" << level1iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
     }
     Coordinates *currentPos = &(positions[readIndex]);
-    for( int x = 0 ; x < cubeDimension ; ++x )
+    for( int rotations = 0 ; rotations < maxRotations ; ++rotations )
     {
-        currentPos->x = x;
-        for( int y = 0 ; y < cubeDimension ; ++y )
+        for( int x = 0 ; x < cubeDimension ; ++x )
         {
-            currentPos->y = y;
-            for( int z = 0; z < cubeDimension ; ++z )
+            currentPos->x = x;
+            for( int y = 0 ; y < cubeDimension ; ++y )
             {
-                currentPos->z = z;
-                for( int rotations = 0 ; rotations < 6 ; ++rotations )
+                currentPos->y = y;
+                for( int z = 0; z < cubeDimension ; ++z )
                 {
+                    currentPos->z = z;
                     if( readIndex==1 )
                     {
                         level1iterations++;
@@ -104,10 +110,10 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
                         }
                     }
                     // did not fit, try again
-                   allPieces[readIndex].rotate();
                 }
             }
         }
+        allPieces[readIndex].rotate();
     }
     // We could not fit this piece (or adjacent pieces) to any place in any position.
     return false;
@@ -116,25 +122,23 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
 bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
 {
     Coordinates *currentPos = &(positions[0]);
-#ifndef FULL_MODE
-    currentPos->x = 0;
-    currentPos->y = 0;
-    for( int z = 0 ; z < 2 ; ++z )
-#else
-    for( int x = 0 ; x < cubeDimension ; ++x )
-    {
-        currentPos->x = x;
-        for( int y = 0 ; y < cubeDimension ; ++y )
-        {
-            currentPos->y = y;
-            for( int z = 0; z < cubeDimension ; ++z )
-#endif
-            {
-                currentPos->z = z;
 #ifdef FULL_MODE
-                for( int rotations = 0 ; rotations < 6 ; ++rotations )
-                {
+    for( int rotations = 0 ; rotations < 6 ; ++rotations )
+    {
+        for( int x = 0 ; x < cubeDimension ; ++x )
+        {
+            currentPos->x = x;
+            for( int y = 0 ; y < cubeDimension ; ++y )
+            {
+                currentPos->y = y;
+                for( int z = 0; z < cubeDimension ; ++z )
+#else
+                currentPos->x = 0;
+                currentPos->y = 0;
+                for( int z = 0 ; z < 2 ; ++z )
 #endif
+                {
+                    currentPos->z = z;
                     level0iterations++;
                     if( cube->add(&(containers[0])) )
                     {
@@ -149,14 +153,12 @@ bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
                             cube->pop();
                         }
                     }
-#ifdef FULL_MODE
-                    // did not fit, try again
-                   allPieces[0].rotate();
                 }
-#endif
-            }
 #ifdef FULL_MODE
+            }
         }
+        // did not fit, try again
+       allPieces[0].rotate();
     }
 #endif
     // No solution found
