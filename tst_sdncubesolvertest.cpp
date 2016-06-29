@@ -526,7 +526,6 @@ void SDNCubeSolverTest::printSteps()
 void SDNCubeSolverTest::stateStorerWrite()
 {
     const int numItems = 8;
-    int64_t progress = 42;
     int xCoord[numItems] = {0};
     int yCoord[numItems] = {0};
     int zCoord[numItems] = {0};
@@ -539,7 +538,6 @@ void SDNCubeSolverTest::stateStorerWrite()
     StateStorer storer(numItems, QString("testout.txt"));
     QCOMPARE(storer.numItems, numItems);
     QCOMPARE(storer.filename, QString("testout.txt"));
-    QCOMPARE((int)storer.progress, 0);
     QCOMPARE(storer.xCoords.length(), numItems);
     QCOMPARE(storer.yCoords.length(), numItems);
     QCOMPARE(storer.zCoords.length(), numItems);
@@ -551,8 +549,6 @@ void SDNCubeSolverTest::stateStorerWrite()
         QCOMPARE(storer.zCoords.at(i), 0);
         QCOMPARE(storer.rotations.at(i), 0);
     }
-    storer.setProgress(progress);
-    QCOMPARE((int)storer.progress, (int)progress);
     for( int i = 0 ; i < numItems ; ++i )
     {
         xCoord[i] = 1+i;
@@ -577,15 +573,9 @@ void SDNCubeSolverTest::stateStorerWrite()
     QTextStream input(&verificationFile);
     QVERIFY(!input.atEnd());
     QString header = input.readLine();
-    QCOMPARE(header, QString("Progress:"));
-    QVERIFY(!input.atEnd());
-    QString numberStr = input.readLine();
-    QCOMPARE(numberStr.toInt(), (int)progress);
-    QVERIFY(!input.atEnd());
-    header = input.readLine();
     QCOMPARE(header, QString("Number of items:"));
     QVERIFY(!input.atEnd());
-    numberStr = input.readLine();
+    QString numberStr = input.readLine();
     QCOMPARE(numberStr.toInt(), numItems);
     QVERIFY(!input.atEnd());
     header = input.readLine();
@@ -630,12 +620,9 @@ void SDNCubeSolverTest::stateStorerWrite()
 void SDNCubeSolverTest::stateStorerRead()
 {
     const int numItems = 4;
-    const int progressValue = 15;
     QFile sourceFile("testin.txt");
     QVERIFY(sourceFile.open(QIODevice::WriteOnly | QIODevice::Text));
     QTextStream out(&sourceFile);
-    out << QString("Progress:\n");
-    out << QString::number(15) << "\n";
     out << QString("Number of items:\n");
     out << QString::number(numItems) << "\n";
     out << QString("X Coordinates:\n");
@@ -661,7 +648,7 @@ void SDNCubeSolverTest::stateStorerRead()
     sourceFile.close();
     StateStorer storer(numItems, QString("testin.txt"));
     QCOMPARE(storer.numItems, numItems);
-    QCOMPARE((int)storer.progress, progressValue);
+    QCOMPARE(storer.getNumItems(), numItems);
     QCOMPARE(storer.xCoords.length(), numItems);
     QCOMPARE(storer.yCoords.length(), numItems);
     QCOMPARE(storer.zCoords.length(), numItems);
@@ -669,9 +656,13 @@ void SDNCubeSolverTest::stateStorerRead()
     for( int i = 0 ; i < numItems ; ++i )
     {
         QCOMPARE(storer.xCoords.at(i), i+1);
+        QCOMPARE(storer.getXCoord(i), i+1);
         QCOMPARE(storer.yCoords.at(i), 10*(i+1));
+        QCOMPARE(storer.getYCoord(i), 10*(i+1));
         QCOMPARE(storer.zCoords.at(i), 20*(i+1));
+        QCOMPARE(storer.getZCoord(i), 20*(i+1));
         QCOMPARE(storer.rotations.at(i), 30*(i+1));
+        QCOMPARE(storer.getRotations(i), 30*(i+1));
     }
 }
 

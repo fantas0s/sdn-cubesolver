@@ -4,14 +4,12 @@
 #include <QDebug>
 #include <stdint.h>
 #include <QDateTime>
+#include "statestorer.h"
 #define NUM_PIECES 13
 
 const int cubeDimension = 4;
 const int maxRotations = 10;
 int64_t progress = 0;
-int level0iterations = 0;
-int level1iterations = 0;
-int level2iterations = 0;
 const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*maxRotations;
 #ifdef FULL_MODE
 const int level0iterationsMax = iterationsMax;
@@ -26,6 +24,7 @@ static PuzzlePiece allPieces[NUM_PIECES];
 static Coordinates positions[NUM_PIECES];
 static PieceLocationContainer containers[NUM_PIECES];
 static QDateTime startTime;
+static StateStorer *backup;
 
 void createAllPieces()
 {
@@ -59,26 +58,40 @@ void createAllPieces()
     Q_ASSERT(index == NUM_PIECES);
 }
 
+void makeBackup()
+{
+    backup->setRotations(rotations);
+    backup->setXCoords(xCoord);
+    backup->setYCoords(yCoord);
+    backup->setZCoords(zCoord);
+    backup->writeFile();
+}
+
+int countIterations(int index)
+{
+    return (rotations[index]*(cubeDimension*cubeDimension*cubeDimension))
+            + (xCoord[index]*(cubeDimension*cubeDimension))
+            + (yCoord[index]*cubeDimension)
+            + zCoord[index]
+            + 1;
+}
+
 bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex);
 
 bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex)
 {
     progress++;
-    if( readIndex==1 )
-    {
-        level1iterations = 0;
-    }
-    if( readIndex==2 )
-    {
-        level2iterations = 0;
-    }
     if( 0 == (progress & ((int64_t)0xffff)) )
     {
-        qint64 msecs = startTime.msecsTo(QDateTime::currentDateTime());
-        qint64 secs = msecs/1000;
+        const qint64 msecs = startTime.msecsTo(QDateTime::currentDateTime());
+        const qint64 secs = msecs/1000;
+        const int level0iterations = countIterations(0);
+        const int level1iterations = countIterations(1);
+        const int level2iterations = countIterations(2);
         std::cout << "Progressing " << progress << " (" << level0iterations << "/" << level0iterationsMax
                   << ") (" << level1iterations << "/" << iterationsMax
                   << ") (" << level2iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
+        makeBackup();
     }
     Coordinates *currentPos = &(positions[readIndex]);
     for( ; rotations[readIndex] < maxRotations ; ++rotations[readIndex] )
@@ -92,14 +105,6 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
                 for( ; zCoord[readIndex] < cubeDimension ; ++zCoord[readIndex] )
                 {
                     currentPos->z = zCoord[readIndex];
-                    if( readIndex==1 )
-                    {
-                        level1iterations++;
-                    }
-                    else if( readIndex==2 )
-                    {
-                        level2iterations++;
-                    }
                     if( cube->add(&(containers[readIndex])) )
                     {
                         // This piece fits. Was it the last one?
@@ -159,7 +164,6 @@ bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
 #endif
                 {
                     currentPos->z = zCoord[0];
-                    level0iterations++;
                     if( cube->add(&(containers[0])) )
                     {
                         // This piece fits. Add more pieces to the cube.
@@ -203,18 +207,20 @@ int main(int argc, char *argv[])
      * using pointers instead of objects in this file:         90 * 90 * 90 * 16  seconds = 135 days...
      * removed floating point operations from this file:       64 * 64 * 84       seconds = 4 days!
      * (only two positions of first piece are needed:          2 * 64 * 84        seconds = 3 hours)
-     * after increasing rotations to 10 and changing order:    2 * 10 *           seconds =
+     * after increasing rotations to 10 and changing order:    2 * 10 * 10482     seconds = 2 days 10 hours.
      */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
     createAllPieces();
+    StateStorer savedState(NUM_PIECES, QString("savedstate.txt"));
     for( int index = 0 ; index < NUM_PIECES ; ++index )
     {
         containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
-        xCoord[index] = 0;
-        yCoord[index] = 0;
-        zCoord[index] = 0;
-        rotations[index] = 0;
+        xCoord[index] = savedState.getXCoord(index);
+        yCoord[index] = savedState.getYCoord(index);
+        zCoord[index] = savedState.getZCoord(index);
+        rotations[index] = savedState.getRotations(index);
     }
+    backup = &savedState;
     startTime = QDateTime::currentDateTime();
     if( addLevel0PieceToCubeAndContinue(&cube) )
     {

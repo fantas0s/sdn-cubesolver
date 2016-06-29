@@ -5,8 +5,7 @@
 
 StateStorer::StateStorer(int num, QString name) :
     numItems(num),
-    filename(name),
-    progress(0)
+    filename(name)
 {
     QFile sourceFile(filename);
     bool wasNotLoadedFromFile = true;
@@ -18,9 +17,6 @@ StateStorer::StateStorer(int num, QString name) :
             // Not empty
             QString header = input.readLine();
             QString numberStr = input.readLine();
-            progress = numberStr.toInt();
-            header = input.readLine();
-            numberStr = input.readLine();
             if( numberStr.toInt() == num )
             {
                 header = input.readLine();
@@ -88,11 +84,6 @@ StateStorer::StateStorer(int num, QString name) :
     }
 }
 
-void StateStorer::setProgress(int64_t current)
-{
-    progress = current;
-}
-
 void StateStorer::setXCoords(int *coordlist)
 {
     for( int i = 0 ; i < numItems ; ++i )
@@ -134,8 +125,6 @@ void StateStorer::writeFile()
         return;
     }
     QTextStream out(&outputFile);
-    out << QString("Progress:\n");
-    out << QString::number(progress) << "\n";
     out << QString("Number of items:\n");
     out << QString::number(numItems) << "\n";
     out << QString("X Coordinates:\n");
@@ -159,4 +148,29 @@ void StateStorer::writeFile()
         out << QString::number(rotations[i]) << "\n";
     }
     outputFile.close();
+}
+
+int StateStorer::getNumItems()
+{
+    return numItems;
+}
+
+int StateStorer::getXCoord(int index)
+{
+    return xCoords.at(index);
+}
+
+int StateStorer::getYCoord(int index)
+{
+    return yCoords.at(index);
+}
+
+int StateStorer::getZCoord(int index)
+{
+    return zCoords.at(index);
+}
+
+int StateStorer::getRotations(int index)
+{
+    return rotations.at(index);
 }
