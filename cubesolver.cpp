@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
      */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
     createAllPieces();
-    StateStorer savedState(NUM_PIECES, QString("savedstate.txt"));
+    StateStorer savedState(NUM_PIECES, QString("../sdn-cubesolver/savedstate.txt"));
     for( int index = 0 ; index < NUM_PIECES ; ++index )
     {
         containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
@@ -219,6 +219,10 @@ int main(int argc, char *argv[])
         yCoord[index] = savedState.getYCoord(index);
         zCoord[index] = savedState.getZCoord(index);
         rotations[index] = savedState.getRotations(index);
+        for( int rotate = 0 ; rotate < rotations[index] ; ++rotate )
+        {
+            allPieces[index].rotate();
+        }
     }
     backup = &savedState;
     startTime = QDateTime::currentDateTime();
