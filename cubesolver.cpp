@@ -4,19 +4,24 @@
 #include <QDebug>
 #include <stdint.h>
 #include <QDateTime>
-#define NUM_PIECES 13
+#define NUM_PIECES 12
 
 const int cubeDimension = 4;
 const int maxRotations = 10;
 int64_t progress = 0;
 int level0iterations = 0;
 int level1iterations = 0;
+int level2iterations = 0;
 const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*maxRotations;
 #ifdef FULL_MODE
 const int level0iterationsMax = iterationsMax;
 #else
 const int level0iterationsMax = 2;
 #endif
+static int xCoord[NUM_PIECES];
+static int yCoord[NUM_PIECES];
+static int zCoord[NUM_PIECES];
+static int rotations[NUM_PIECES];
 static PuzzlePiece allPieces[NUM_PIECES];
 static Coordinates positions[NUM_PIECES];
 static PieceLocationContainer containers[NUM_PIECES];
@@ -27,8 +32,8 @@ void createAllPieces()
     int index = 0;
     PieceCreator::createPieceOrangePlus(&(allPieces[index]));
     index++;
-    PieceCreator::createPieceBlue3DTetris(&(allPieces[index]));
-    index++;
+/*    PieceCreator::createPieceBlue3DTetris(&(allPieces[index]));
+    index++;*/
     PieceCreator::createPieceBlackClothHanger(&(allPieces[index]));
     index++;
     PieceCreator::createPieceOrangeDoubleL(&(allPieces[index]));
@@ -63,28 +68,37 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
     {
         level1iterations = 0;
     }
+    if( readIndex==2 )
+    {
+        level2iterations = 0;
+    }
     if( 0 == (progress & ((int64_t)0xffff)) )
     {
         qint64 msecs = startTime.msecsTo(QDateTime::currentDateTime());
         qint64 secs = msecs/1000;
         std::cout << "Progressing " << progress << " (" << level0iterations << "/" << level0iterationsMax
-                  << ") (" << level1iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
+                  << ") (" << level1iterations << "/" << iterationsMax
+                  << ") (" << level2iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
     }
     Coordinates *currentPos = &(positions[readIndex]);
-    for( int rotations = 0 ; rotations < maxRotations ; ++rotations )
+    for( ; rotations[readIndex] < maxRotations ; ++rotations[readIndex] )
     {
-        for( int x = 0 ; x < cubeDimension ; ++x )
+        for( ; xCoord[readIndex] < cubeDimension ; ++xCoord[readIndex] )
         {
-            currentPos->x = x;
-            for( int y = 0 ; y < cubeDimension ; ++y )
+            currentPos->x = xCoord[readIndex];
+            for( ; yCoord[readIndex] < cubeDimension ; ++yCoord[readIndex] )
             {
-                currentPos->y = y;
-                for( int z = 0; z < cubeDimension ; ++z )
+                currentPos->y = yCoord[readIndex];
+                for( ; zCoord[readIndex] < cubeDimension ; ++zCoord[readIndex] )
                 {
-                    currentPos->z = z;
+                    currentPos->z = zCoord[readIndex];
                     if( readIndex==1 )
                     {
                         level1iterations++;
+                    }
+                    else if( readIndex==2 )
+                    {
+                        level2iterations++;
                     }
                     if( cube->add(&(containers[readIndex])) )
                     {
@@ -108,14 +122,18 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
                                 cube->pop();
                             }
                         }
-                    }
+                    } // if(cube.add())
                     // did not fit, try again
-                }
-            }
-        }
+                } // for z
+                zCoord[readIndex] = 0;
+            } // for y
+            yCoord[readIndex] = 0;
+        } // for x
+        xCoord[readIndex] = 0;
         allPieces[readIndex].rotate();
-    }
-    // We could not fit this piece (or adjacent pieces) to any place in any position.
+    } // for rotate
+    rotations[readIndex] = 0;
+    // We could not fit this piece (or adjacent pieces) to any place in any rotation.
     return false;
 }
 
@@ -123,22 +141,24 @@ bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
 {
     Coordinates *currentPos = &(positions[0]);
 #ifdef FULL_MODE
-    for( int rotations = 0 ; rotations < 6 ; ++rotations )
+    for( ; rotations[0] < maxRotations ; ++rotations[0] )
     {
-        for( int x = 0 ; x < cubeDimension ; ++x )
+        for( ; xCoord[0] < cubeDimension ; ++xCoord[0] )
         {
-            currentPos->x = x;
-            for( int y = 0 ; y < cubeDimension ; ++y )
+            currentPos->x = xCoord[0];
+            for( ; yCoord[0] < cubeDimension ; ++yCoord[0] )
             {
-                currentPos->y = y;
-                for( int z = 0; z < cubeDimension ; ++z )
+                currentPos->y = yCoord[0];
+                for( ; zCoord[0] < cubeDimension ; ++zCoord[0] )
+                {
+                    currentPos->z = zCoord[0];
 #else
                 currentPos->x = 0;
                 currentPos->y = 0;
-                for( int z = 0 ; z < 2 ; ++z )
+                for( ; zCoord[0] < 2 ; ++zCoord[0] )
 #endif
                 {
-                    currentPos->z = z;
+                    currentPos->z = zCoord[0];
                     level0iterations++;
                     if( cube->add(&(containers[0])) )
                     {
@@ -153,13 +173,17 @@ bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
                             cube->pop();
                         }
                     }
-                }
+                    // did not fit, try again
+                } // for z
 #ifdef FULL_MODE
-            }
-        }
-        // did not fit, try again
-       allPieces[0].rotate();
-    }
+                zCoord[0] = 0;
+            } // for y
+            yCoord[0] = 0;
+        } // for x
+        xCoord[0] = 0;
+        allPieces[0].rotate();
+    } // for rotate
+    rotations[0] = 0;
 #endif
     // No solution found
     return false;
@@ -177,15 +201,19 @@ int main(int argc, char *argv[])
      * No more dynamic allocs in grid handling:                90 * 90 * 90 * 24  seconds = 202 days...
      * using pointers instead of objects in container vector:  90 * 90 * 90 * 24  seconds = 202 days...
      * using pointers instead of objects in this file:         90 * 90 * 90 * 16  seconds = 135 days...
-     * removed floating point operations from this file:       64 * 64 * 84 seconds = 4 days!
-     *
-     * Also: only two positions of first piece are needed, which means proper time should be 2 * 64 * 84 seconds = 3 hours.
+     * removed floating point operations from this file:       64 * 64 * 84       seconds = 4 days!
+     * (only two positions of first piece are needed:          2 * 64 * 84        seconds = 3 hours)
+     * after increasing rotations to 10 and changing order:    2 * 10 *           seconds =
      */
     PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
     createAllPieces();
     for( int index = 0 ; index < NUM_PIECES ; ++index )
     {
         containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
+        xCoord[index] = 0;
+        yCoord[index] = 0;
+        zCoord[index] = 0;
+        rotations[index] = 0;
     }
     startTime = QDateTime::currentDateTime();
     if( addLevel0PieceToCubeAndContinue(&cube) )
