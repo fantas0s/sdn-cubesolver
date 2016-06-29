@@ -23,7 +23,8 @@ SOURCES += tst_sdncubesolvertest.cpp \
     canvasprinter.cpp \
     printableblock.cpp \
     printablepiece.cpp \
-    piececreator.cpp
+    piececreator.cpp \
+    statestorer.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
@@ -35,4 +36,5 @@ HEADERS += \
     canvasprinter.hpp \
     printableblock.h \
     printablepiece.h \
-    piececreator.h
+    piececreator.h \
+    statestorer.h

@@ -7,6 +7,7 @@
 #include "printableblock.h"
 #include "printablepiece.h"
 #include "piececreator.h"
+#include "statestorer.h"
 
 class SDNCubeSolverTest : public QObject
 {
@@ -32,7 +33,8 @@ private Q_SLOTS:
     void printPieceBlocksToCanvas();
     void printPlusPiece();
     void printSteps();
-    void addAllButOnePieceToCube();
+    void stateStorerWrite();
+    void stateStorerRead();
 };
 
 SDNCubeSolverTest::SDNCubeSolverTest()
@@ -521,94 +523,156 @@ void SDNCubeSolverTest::printSteps()
     QCOMPARE(instructions, expected);
 }
 
-void SDNCubeSolverTest::addAllButOnePieceToCube()
+void SDNCubeSolverTest::stateStorerWrite()
 {
-    PuzzleContainer cube(4,4,4);
-    PuzzlePiece pieces[12];
-    Coordinates locations[12];
-    PieceLocationContainer containers[12];
-    for( int containerIndex = 0 ; containerIndex < 12 ; containerIndex++ )
+    const int numItems = 8;
+    int64_t progress = 42;
+    int xCoord[numItems] = {0};
+    int yCoord[numItems] = {0};
+    int zCoord[numItems] = {0};
+    int rotations[numItems] = {0};
+    QFile emptyFile("testout.txt");
+    QVERIFY(emptyFile.open(QIODevice::WriteOnly | QIODevice::Text));
+    QTextStream out(&emptyFile);
+    out << "";
+    emptyFile.close();
+    StateStorer storer(numItems, QString("testout.txt"));
+    QCOMPARE(storer.numItems, numItems);
+    QCOMPARE(storer.filename, QString("testout.txt"));
+    QCOMPARE((int)storer.progress, 0);
+    QCOMPARE(storer.xCoords.length(), numItems);
+    QCOMPARE(storer.yCoords.length(), numItems);
+    QCOMPARE(storer.zCoords.length(), numItems);
+    QCOMPARE(storer.rotations.length(), numItems);
+    for( int i = 0 ; i < numItems ; ++i )
     {
-        containers[containerIndex] = PieceLocationContainer(&(pieces[containerIndex]), &(locations[containerIndex]));
+        QCOMPARE(storer.xCoords.at(i), 0);
+        QCOMPARE(storer.yCoords.at(i), 0);
+        QCOMPARE(storer.zCoords.at(i), 0);
+        QCOMPARE(storer.rotations.at(i), 0);
     }
-    int index = 0;
-    PieceCreator::createPieceOrangePlus(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlue3DTetris(&(pieces[index]));
-    pieces[index].rotate();
-    pieces[index].rotate();
-    pieces[index].rotate();
-    locations[index].x = 3;
-    locations[index].y = 0;
-    locations[index].z = 1;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlackClothHanger(&(pieces[index]));
-    pieces[index].rotate();
-    locations[index].x = 1;
-    locations[index].y = 3;
-    locations[index].z = 1;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-/*    PieceCreator::createPieceOrangeDoubleL(&(pieces[index]));
-    pieces[index].rotate(); // can not turn to proper way
-    locations[index].x = 3;
-    locations[index].y = 3;
-    locations[index].z = 3;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceOrangeJigsawUp1(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceOrangeJigsawUp2(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlackLeveledT(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlackKnobUpT(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlackZigZag(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlue3DL(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlueDoubleL(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;
-    PieceCreator::createPieceBlueFlatZigZag(&(pieces[index]));
-    locations[index].x = 0;
-    locations[index].y = 0;
-    locations[index].z = 0;
-    QVERIFY(cube.add(&(containers[index])));
-    index++;*/
+    storer.setProgress(progress);
+    QCOMPARE((int)storer.progress, (int)progress);
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        xCoord[i] = 1+i;
+        yCoord[i] = numItems + i + 1;
+        zCoord[i] = (numItems*2) + i + 1;
+        rotations[i] = (numItems*3) + i + 1;
+    }
+    storer.setXCoords(xCoord);
+    storer.setYCoords(yCoord);
+    storer.setZCoords(zCoord);
+    storer.setRotations(rotations);
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        QCOMPARE(storer.xCoords.at(i), xCoord[i]);
+        QCOMPARE(storer.yCoords.at(i), yCoord[i]);
+        QCOMPARE(storer.zCoords.at(i), zCoord[i]);
+        QCOMPARE(storer.rotations.at(i), rotations[i]);
+    }
+    storer.writeFile();
+    QFile verificationFile("testout.txt");
+    QVERIFY(verificationFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    QTextStream input(&verificationFile);
+    QVERIFY(!input.atEnd());
+    QString header = input.readLine();
+    QCOMPARE(header, QString("Progress:"));
+    QVERIFY(!input.atEnd());
+    QString numberStr = input.readLine();
+    QCOMPARE(numberStr.toInt(), (int)progress);
+    QVERIFY(!input.atEnd());
+    header = input.readLine();
+    QCOMPARE(header, QString("Number of items:"));
+    QVERIFY(!input.atEnd());
+    numberStr = input.readLine();
+    QCOMPARE(numberStr.toInt(), numItems);
+    QVERIFY(!input.atEnd());
+    header = input.readLine();
+    QCOMPARE(header, QString("X Coordinates:"));
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        QVERIFY(!input.atEnd());
+        numberStr = input.readLine();
+        QCOMPARE(numberStr.toInt(), xCoord[i]);
+    }
+    QVERIFY(!input.atEnd());
+    header = input.readLine();
+    QCOMPARE(header, QString("Y Coordinates:"));
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        QVERIFY(!input.atEnd());
+        numberStr = input.readLine();
+        QCOMPARE(numberStr.toInt(), yCoord[i]);
+    }
+    QVERIFY(!input.atEnd());
+    header = input.readLine();
+    QCOMPARE(header, QString("Z Coordinates:"));
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        QVERIFY(!input.atEnd());
+        numberStr = input.readLine();
+        QCOMPARE(numberStr.toInt(), zCoord[i]);
+    }
+    QVERIFY(!input.atEnd());
+    header = input.readLine();
+    QCOMPARE(header, QString("Rotations:"));
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        QVERIFY(!input.atEnd());
+        numberStr = input.readLine();
+        QCOMPARE(numberStr.toInt(), rotations[i]);
+    }
+    QVERIFY(input.atEnd());
+    verificationFile.close();
+}
+
+void SDNCubeSolverTest::stateStorerRead()
+{
+    const int numItems = 4;
+    const int progressValue = 15;
+    QFile sourceFile("testin.txt");
+    QVERIFY(sourceFile.open(QIODevice::WriteOnly | QIODevice::Text));
+    QTextStream out(&sourceFile);
+    out << QString("Progress:\n");
+    out << QString::number(15) << "\n";
+    out << QString("Number of items:\n");
+    out << QString::number(numItems) << "\n";
+    out << QString("X Coordinates:\n");
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        out << QString::number(i+1) << "\n";
+    }
+    out << QString("Y Coordinates:\n");
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        out << QString::number(10*(i+1)) << "\n";
+    }
+    out << QString("Z Coordinates:\n");
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        out << QString::number(20*(i+1)) << "\n";
+    }
+    out << QString("Rotations:\n");
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        out << QString::number(30*(i+1)) << "\n";
+    }
+    sourceFile.close();
+    StateStorer storer(numItems, QString("testin.txt"));
+    QCOMPARE(storer.numItems, numItems);
+    QCOMPARE((int)storer.progress, progressValue);
+    QCOMPARE(storer.xCoords.length(), numItems);
+    QCOMPARE(storer.yCoords.length(), numItems);
+    QCOMPARE(storer.zCoords.length(), numItems);
+    QCOMPARE(storer.rotations.length(), numItems);
+    for( int i = 0 ; i < numItems ; ++i )
+    {
+        QCOMPARE(storer.xCoords.at(i), i+1);
+        QCOMPARE(storer.yCoords.at(i), 10*(i+1));
+        QCOMPARE(storer.zCoords.at(i), 20*(i+1));
+        QCOMPARE(storer.rotations.at(i), 30*(i+1));
+    }
 }
 
 QTEST_APPLESS_MAIN(SDNCubeSolverTest)

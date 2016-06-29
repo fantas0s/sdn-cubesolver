@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <stdint.h>
 #include <QDateTime>
-#define NUM_PIECES 12
+#define NUM_PIECES 13
 
 const int cubeDimension = 4;
 const int maxRotations = 10;
@@ -32,8 +32,8 @@ void createAllPieces()
     int index = 0;
     PieceCreator::createPieceOrangePlus(&(allPieces[index]));
     index++;
-/*    PieceCreator::createPieceBlue3DTetris(&(allPieces[index]));
-    index++;*/
+    PieceCreator::createPieceBlue3DTetris(&(allPieces[index]));
+    index++;
     PieceCreator::createPieceBlackClothHanger(&(allPieces[index]));
     index++;
     PieceCreator::createPieceOrangeDoubleL(&(allPieces[index]));

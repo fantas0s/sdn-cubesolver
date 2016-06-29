@@ -18,7 +18,8 @@ SOURCES += \
     puzzlepiece.cpp \
     printableblock.cpp \
     printablepiece.cpp \
-    piececreator.cpp
+    piececreator.cpp \
+    statestorer.cpp
 
 HEADERS += \
     canvasprinter.hpp \
@@ -29,4 +30,5 @@ HEADERS += \
     puzzlepiece.h \
     printableblock.h \
     printablepiece.h \
-    piececreator.h
+    piececreator.h \
+    statestorer.h
