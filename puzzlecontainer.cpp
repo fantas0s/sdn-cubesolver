@@ -96,7 +96,7 @@ void PuzzleContainer::pop()
     piecesInContainer.removeLast();
 }
 
-QString PuzzleContainer::printSteps()
+QString PuzzleContainer::extractStepsToString()
 {
     CanvasPrinter printer(myWidth, myHeight, myDepth);
     const QString emptyGridString = printer.printEmptyGrid();

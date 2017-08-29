@@ -1,32 +1,50 @@
 #include <iostream>
-#include "puzzlecontainer.h"
+#include "cubesolver.h"
 #include "piececreator.h"
 #include <QDebug>
 #include <stdint.h>
-#include <QDateTime>
-#include "statestorer.h"
-#define NUM_PIECES 13
 
-const int cubeDimension = 4;
-const int maxRotations = 10;
+/* CONSTANTS */
+static const int cubeDimension = 4;
+static const int maxRotations = 10;
 int64_t progress = 0;
-const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*maxRotations;
+static const int iterationsMax = cubeDimension*cubeDimension*cubeDimension*maxRotations;
 #ifdef FULL_MODE
-const int level0iterationsMax = iterationsMax;
+static const int level0iterationsMax = iterationsMax;
 #else
-const int level0iterationsMax = 2;
+static const int level0iterationsMax = 2;
 #endif
-static int xCoord[NUM_PIECES];
-static int yCoord[NUM_PIECES];
-static int zCoord[NUM_PIECES];
-static int rotations[NUM_PIECES];
-static PuzzlePiece allPieces[NUM_PIECES];
-static Coordinates positions[NUM_PIECES];
-static PieceLocationContainer containers[NUM_PIECES];
-static QDateTime startTime;
-static StateStorer *backup;
+static const QString datapath = "../sdn-cubesolver";
 
-void createAllPieces()
+CubeSolver::CubeSolver() :
+    maxNumOfPiecesFittedSoFar(0)
+{
+    cube = new PuzzleContainer(cubeDimension,cubeDimension,cubeDimension);
+    createAllPieces();
+    if (QDir(datapath).exists())
+    {
+        savedStateDirectory = new QDir(datapath);
+    }
+    else
+    {
+        savedStateDirectory = new QDir();
+    }
+    backup = new StateStorer(NUM_PIECES, savedStateDirectory->absoluteFilePath(QString("savedstate.txt")));
+    for( int index = 0 ; index < NUM_PIECES ; ++index )
+    {
+        containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
+        xCoord[index] = backup->getXCoord(index);
+        yCoord[index] = backup->getYCoord(index);
+        zCoord[index] = backup->getZCoord(index);
+        rotations[index] = backup->getRotations(index);
+        for( int rotate = 0 ; rotate < rotations[index] ; ++rotate )
+        {
+            allPieces[index].rotate();
+        }
+    }
+}
+
+void CubeSolver::createAllPieces()
 {
     int index = 0;
     PieceCreator::createPieceOrangePlus(&(allPieces[index]));
@@ -58,7 +76,7 @@ void createAllPieces()
     Q_ASSERT(index == NUM_PIECES);
 }
 
-void makeBackup()
+void CubeSolver::makeBackup()
 {
     backup->setRotations(rotations);
     backup->setXCoords(xCoord);
@@ -67,7 +85,7 @@ void makeBackup()
     backup->writeFile();
 }
 
-int countIterations(int index)
+int CubeSolver::countIterations(int index) const
 {
     return (rotations[index]*(cubeDimension*cubeDimension*cubeDimension))
             + (xCoord[index]*(cubeDimension*cubeDimension))
@@ -76,9 +94,7 @@ int countIterations(int index)
             + 1;
 }
 
-bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex);
-
-bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex)
+bool CubeSolver::addPiecesToCubeStartingFromIndex(const int readIndex)
 {
     progress++;
     if( 0 == (progress & ((int64_t)0xffff)) )
@@ -90,7 +106,9 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
         const int level2iterations = countIterations(2);
         std::cout << "Progressing " << progress << " (" << level0iterations << "/" << level0iterationsMax
                   << ") (" << level1iterations << "/" << iterationsMax
-                  << ") (" << level2iterations << "/" << iterationsMax << ") (runtime " << secs << " seconds)\n";
+                  << ") (" << level2iterations << "/" << iterationsMax
+                  << ") (runtime " << secs << " seconds, "
+                  << maxNumOfPiecesFittedSoFar << "/" << NUM_PIECES << " pieces fitted)\n";
         makeBackup();
     }
     Coordinates *currentPos = &(positions[readIndex]);
@@ -112,12 +130,13 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
                         {
                             // YES! We're done!
                             qDebug() << "All" << readIndex+1 << "pieces added!";
+                            printSetupIfHighestSoFar(readIndex+1);
                             return true;
                         }
                         else
                         {
                             // No, there are more pieces to place to the cube.
-                            if( addPiecesToCubeStartingFromIndex(cube, readIndex+1) )
+                            if( addPiecesToCubeStartingFromIndex(readIndex+1) )
                             {
                                 return true;
                             }
@@ -125,6 +144,8 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
                             {
                                 // No solution from this setup. Take last piece out and try again.
                                 cube->pop();
+                                // But print the setup where pieces still fit if we don't have one yet.
+                                printSetupIfHighestSoFar(readIndex+1);
                             }
                         }
                     } // if(cube.add())
@@ -142,7 +163,28 @@ bool addPiecesToCubeStartingFromIndex(PuzzleContainer *cube, const int readIndex
     return false;
 }
 
-bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
+void CubeSolver::printSetupIfHighestSoFar(const int numOfPiecesInCube)
+{
+    if (numOfPiecesInCube > maxNumOfPiecesFittedSoFar) {
+        maxNumOfPiecesFittedSoFar = numOfPiecesInCube;
+        QString fileName = QString("%1pieces.txt").arg(maxNumOfPiecesFittedSoFar,
+                                                       2,
+                                                       10,
+                                                       QChar('0'));
+
+        QFile outputFile(savedStateDirectory->absoluteFilePath(fileName));
+        if(!outputFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            qDebug() << "failed to open solution file" << outputFile.fileName();
+            return;
+        }
+        QTextStream out(&outputFile);
+        out << cube->extractStepsToString().toLatin1() << "\n";
+        outputFile.close();
+    }
+}
+
+bool CubeSolver::addLevel0PieceToCubeAndContinue()
 {
     Coordinates *currentPos = &(positions[0]);
 #ifdef FULL_MODE
@@ -167,7 +209,7 @@ bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
                     if( cube->add(&(containers[0])) )
                     {
                         // This piece fits. Add more pieces to the cube.
-                        if( addPiecesToCubeStartingFromIndex(cube, 1) )
+                        if( addPiecesToCubeStartingFromIndex(1) )
                         {
                             return true;
                         }
@@ -193,6 +235,20 @@ bool addLevel0PieceToCubeAndContinue(PuzzleContainer *cube)
     return false;
 }
 
+void CubeSolver::runCubeSolveAlgorithm()
+{
+    startTime = QDateTime::currentDateTime();
+    if( addLevel0PieceToCubeAndContinue() )
+    {
+        qDebug() << "printing Steps";
+        std::cout << cube->extractStepsToString().toStdString();
+    }
+    else
+    {
+        std::cout << "FAILED!\n";
+    }
+}
+
 int main(int argc, char *argv[])
 {
     (void)argc;
@@ -209,30 +265,6 @@ int main(int argc, char *argv[])
      * (only two positions of first piece are needed:          2 * 64 * 84        seconds = 3 hours)
      * after increasing rotations to 10 and changing order:    2 * 10 * 10482     seconds = 2 days 10 hours.
      */
-    PuzzleContainer cube(cubeDimension,cubeDimension,cubeDimension);
-    createAllPieces();
-    StateStorer savedState(NUM_PIECES, QString("../sdn-cubesolver/savedstate.txt"));
-    for( int index = 0 ; index < NUM_PIECES ; ++index )
-    {
-        containers[index] = PieceLocationContainer(&(allPieces[index]), &(positions[index]));
-        xCoord[index] = savedState.getXCoord(index);
-        yCoord[index] = savedState.getYCoord(index);
-        zCoord[index] = savedState.getZCoord(index);
-        rotations[index] = savedState.getRotations(index);
-        for( int rotate = 0 ; rotate < rotations[index] ; ++rotate )
-        {
-            allPieces[index].rotate();
-        }
-    }
-    backup = &savedState;
-    startTime = QDateTime::currentDateTime();
-    if( addLevel0PieceToCubeAndContinue(&cube) )
-    {
-        qDebug() << "printing Steps";
-        std::cout << cube.printSteps().toStdString();
-    }
-    else
-    {
-        std::cout << "FAILED!\n";
-    }
+    CubeSolver solver;
+    solver.runCubeSolveAlgorithm();
 }

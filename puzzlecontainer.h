@@ -11,7 +11,7 @@ public:
     PuzzleContainer(int width, int height, int depth);
     bool add(const PieceLocationContainer* pieceAndLocation);
     void pop();
-    QString printSteps();
+    QString extractStepsToString();
 private:
     PuzzleContainer();
     const int* getGrid();

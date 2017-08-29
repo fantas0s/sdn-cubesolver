@@ -31,4 +31,5 @@ HEADERS += \
     printableblock.h \
     printablepiece.h \
     piececreator.h \
-    statestorer.h
+    statestorer.h \
+    cubesolver.h

@@ -510,7 +510,7 @@ void SDNCubeSolverTest::printSteps()
     Coordinates location(0,0,0);
     PieceLocationContainer container(&piece, &location);
     cube.add(&container);
-    QString instructions = cube.printSteps();
+    QString instructions = cube.extractStepsToString();
     QString expected = expectedEmpty+"\n"+expectedFirstPiece;
     QCOMPARE(instructions, expected);
     PuzzlePiece piece2;
@@ -518,7 +518,7 @@ void SDNCubeSolverTest::printSteps()
     Coordinates location2(1,1,1);
     PieceLocationContainer container2(&piece2, &location2);
     cube.add(&container2);
-    instructions = cube.printSteps();
+    instructions = cube.extractStepsToString();
     expected = expectedEmpty+"\n"+expectedFirstPiece+"\n"+expectedSecondPiece;
     QCOMPARE(instructions, expected);
 }
