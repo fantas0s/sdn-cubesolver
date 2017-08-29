@@ -104,7 +104,7 @@ bool CubeSolver::addPiecesToCubeStartingFromIndex(const int readIndex)
         const int level0iterations = countIterations(0);
         const int level1iterations = countIterations(1);
         const int level2iterations = countIterations(2);
-        std::cout << "Progressing " << progress << " (" << level0iterations << "/" << level0iterationsMax
+        std::cout << "Testing combination " << progress << " (" << level0iterations << "/" << level0iterationsMax
                   << ") (" << level1iterations << "/" << iterationsMax
                   << ") (" << level2iterations << "/" << iterationsMax
                   << ") (runtime " << secs << " seconds, "
